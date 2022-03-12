@@ -5,13 +5,13 @@ dApp for delegating cryptocurrencies to Validator
 ## Requirements
 
 * [Truffle](https://github.com/trufflesuite/truffle) - Solidity development tool suit, install by `npm install -g truffle`
-* [Ganache](https://trufflesuite.com/ganache/) - a personal blockchain for Ethereum development you can use to deploy contracts, [tip to install](https://gist.github.com/GoodnessEzeokafor/e3a2665bb482addbb603269428424967)
+* [Ganache](https://trufflesuite.com/ganache/) - a personal blockchain for Ethereum development you can use to deploy contracts, install by `npm install ganache --global`
 
 ## First Start Guide
 
 * Install requirements
 * Instal dependencies by `npm i`
-* Start Ganache local blockchain
+* Start Ganache local blockchain by `ganache`
 * Run `truffle compile && truffle migrate` for setup contracts
 * Create `.env` with app configuration, by running `cp ./app/.env.template ./app/.env`
 * Start dev server by `cd app && npm run start`
@@ -45,3 +45,4 @@ Based on default Truffle directory structure:
 * `truffle develop` - launch test blockchain with the Truffle Develop console
 * `truffle create contract YourContractName` - scaffold a contract
 * `truffle create test YourTestName` - scaffold a test
+* `ganache` - start ganache server
