@@ -13,11 +13,19 @@ dApp for delegating cryptocurrencies to Validator
 * Instal dependencies by `npm i`
 * Start Ganache local blockchain
 * Run `truffle compile && truffle migrate` for setup contracts
+* Create `.env` with app configuration, by running `cp ./app/.env.template ./app/.env`
 * Start dev server by `cd app && npm run start`
-* Configure crypto wallet for interact with application, [tutorial](https://trufflesuite.com/tutorial/index.html#interacting-with-the-dapp-in-a-browser)
-  * Use chain id 1337
 
 ## Development
+
+### Use wallet during local development
+
+For test connection of wallet extension with local blockchain need disable direct connection to blockchain.
+
+* Clear variable `REACT_APP_WEB3_URL` in `./app/.env`
+* Configure crypto wallet for interact with application, [tutorial](https://trufflesuite.com/tutorial/index.html#interacting-with-the-dapp-in-a-browser)
+  * Use chain id 1337
+* Start dev server by `cd app && npm run start`
 
 ### Project Structure
 
