@@ -46,3 +46,8 @@ Based on default Truffle directory structure:
 * `truffle create contract YourContractName` - scaffold a contract
 * `truffle create test YourTestName` - scaffold a test
 * `ganache` - start ganache server
+* `ganache --fork https://data-seed-prebsc-1-s1.binance.org:8545` - start ganache fork of BSC test net, [full list available RPC](https://docs.binance.org/smart-chain/developer/rpc.html)
+  
+## Usefull links
+
+* [Binance Smart Chain development with Truffle](https://docs.binance.org/smart-chain/developer/deploy/truffle-new.html)
