@@ -51,3 +51,4 @@ Based on default Truffle directory structure:
 ## Usefull links
 
 * [Binance Smart Chain development with Truffle](https://docs.binance.org/smart-chain/developer/deploy/truffle-new.html)
+* [Develop contract interactivly](https://docs.binance.org/smart-chain/developer/deploy/remix.html)
