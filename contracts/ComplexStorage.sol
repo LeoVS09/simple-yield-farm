@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.21 <0.7.0;
+pragma solidity >=0.4.21 <0.9.0;
 
 contract ComplexStorage {
     uint public storeduint1 = 15;
     uint public constant constuint = 16;
     uint128 public investmentsLimit = 17055;
-    uint32 public investmentsDeadlineTimeStamp = uint32(now);
+    uint32 public investmentsDeadlineTimeStamp = uint32(block.timestamp);
 
     bytes16 public string1 = "test1";
     bytes32 public string2 = "test1236";
@@ -24,7 +24,7 @@ contract ComplexStorage {
         string batteryWearLevel;
     }
 
-    constructor() public {
+    constructor() {
         address address1 = 0xbCcc714d56bc0da0fd33d96d2a87b680dD6D0DF6;
         address address2 = 0xaee905FdD3ED851e48d22059575b9F4245A82B04;
 
