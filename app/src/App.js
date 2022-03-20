@@ -1,6 +1,8 @@
 import React from "react";
 import { DrizzleContext } from "@drizzle/react-plugin";
-import MyComponent from "./MyComponent";
+import {StakedBalance} from './StakedBalance'
+import {Profile} from './Profile'
+import {StakeButton} from './StakeButton'
 import "./App.css";
 
 const App = () => (
@@ -11,7 +13,11 @@ const App = () => (
       }
 
       return (
-        <MyComponent drizzle={drizzle} drizzleState={drizzleState} />
+        <div>
+          <Profile {...{drizzle, drizzleState}} />
+          <StakedBalance {...{drizzle, drizzleState}}  />
+          <StakeButton {...{drizzle, drizzleState}} />
+        </div>
       )
     }}
   </DrizzleContext.Consumer>

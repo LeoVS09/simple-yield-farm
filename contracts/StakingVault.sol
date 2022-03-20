@@ -16,7 +16,7 @@ contract StakingVault {
         uint balance;
     }
 
-    mapping (address => Cell) cells;
+    mapping (address => Cell) public cells;
 
     constructor(address stakeTokenContractAddress) {
         stakeToken = iETH(stakeTokenContractAddress);
@@ -28,7 +28,7 @@ contract StakingVault {
         Cell storage cell = cells[msg.sender];
         cell.balance = cell.balance + msg.value;
 
-        stakeToken.mint{ value:msg.value }(address(this));
+        stakeToken.mint{ value: msg.value }(address(this));
     } 
 
     function withdraw(uint256 amount) external {
@@ -41,6 +41,10 @@ contract StakingVault {
         
         stakeToken.redeem(address(this), amount);
         payable(msg.sender).transfer(amount);
+    }
+
+    function getCurrentBalance() external view returns (uint) {
+        return cells[msg.sender].balance;
     }
 
 }

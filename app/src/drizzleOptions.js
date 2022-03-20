@@ -1,7 +1,5 @@
 import Web3 from "web3";
-import ComplexStorage from "./contracts/ComplexStorage.json";
-import SimpleStorage from "./contracts/SimpleStorage.json";
-import TutorialToken from "./contracts/TutorialToken.json";
+import StakingVault from "./contracts/StakingVault.json";
 
 
 const web3 = process.env.REACT_APP_WEB3_URL && {
@@ -17,10 +15,7 @@ if(web3) {
 
 const options = {
   web3,
-  contracts: [SimpleStorage, ComplexStorage, TutorialToken],
-  events: {
-    SimpleStorage: ["StorageSet"],
-  },
+  contracts: [StakingVault],
 };
 
 export default options;
