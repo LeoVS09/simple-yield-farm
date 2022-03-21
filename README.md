@@ -6,6 +6,7 @@ dApp for delegating cryptocurrencies to Validator
 
 * [Truffle](https://github.com/trufflesuite/truffle) - Solidity development tool suit, install by `npm install -g truffle`
 * [Ganache](https://trufflesuite.com/ganache/) - a personal blockchain for Ethereum development you can use to deploy contracts, install by `npm install ganache --global`
+* [Tenderly](https://github.com/Tenderly/tenderly-cli) - For debug transactions and smart contracts
 
 ## First Start Guide
 
@@ -36,10 +37,15 @@ Based on default Truffle directory structure:
 * `test/`: Contains both JavaScript and Solidity tests for our smart contracts
 * `truffle-config.js`: Truffle configuration file
 
+## Enable tenderlit
+
+`tenderly login` - login for local development
+
 ### Commands
 
 * `truffle compile` - Compile
 * `truffle migrate` - Migrate
+* `truffle migrate --f <migration-number-prefix>` - Run from specific migration
 * `truffle test` - Test contracts
 * `npm run start` - Run dev server
 * `truffle develop` - launch test blockchain with the Truffle Develop console
@@ -47,7 +53,14 @@ Based on default Truffle directory structure:
 * `truffle create test YourTestName` - scaffold a test
 * `ganache` - start ganache server
 * `ganache --fork https://data-seed-prebsc-1-s1.binance.org:8545` - start ganache fork of BSC test net, [full list available RPC](https://docs.binance.org/smart-chain/developer/rpc.html)
+* `tenderly export <transaction hash>` - export transaction from ganache and send to dashboard, [open local transactions dashboard](https://dashboard.tenderly.co/LeoVS09/stacking-delegator/local-transactions/)
   
+## Forks
+
+* `https://data-seed-prebsc-1-s1.binance.org:8545` - Binance Smart Chain
+* `https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161` - Etherium Mainnet
+
 ## Usefull links
 
 * [Binance Smart Chain development with Truffle](https://docs.binance.org/smart-chain/developer/deploy/truffle-new.html)
+* [RPC info](https://rpc.info/)
