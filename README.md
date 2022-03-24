@@ -1,66 +1,46 @@
-# Stacking Delegator
+# Advanced Sample Hardhat Project
 
-dApp for delegating cryptocurrencies to Validator
+This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
 
-## Requirements
+The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
 
-* [Truffle](https://github.com/trufflesuite/truffle) - Solidity development tool suit, install by `npm install -g truffle`
-* [Ganache](https://trufflesuite.com/ganache/) - a personal blockchain for Ethereum development you can use to deploy contracts, install by `npm install ganache --global`
-* [Tenderly](https://github.com/Tenderly/tenderly-cli) - For debug transactions and smart contracts
+Try running some of the following tasks:
 
-## First Start Guide
+```shell
+npx hardhat accounts
+npx hardhat compile
+npx hardhat clean
+npx hardhat test
+npx hardhat node
+npx hardhat help
+REPORT_GAS=true npx hardhat test
+npx hardhat coverage
+npx hardhat run scripts/deploy.ts
+TS_NODE_FILES=true npx ts-node scripts/deploy.ts
+npx eslint '**/*.{js,ts}'
+npx eslint '**/*.{js,ts}' --fix
+npx prettier '**/*.{json,sol,md}' --check
+npx prettier '**/*.{json,sol,md}' --write
+npx solhint 'contracts/**/*.sol'
+npx solhint 'contracts/**/*.sol' --fix
+```
 
-* Install requirements
-* Instal dependencies by `npm i`
-* Start Ganache local blockchain by `ganache`
-* Run `truffle compile && truffle migrate` for setup contracts
-* Create `.env` with app configuration, by running `cp ./app/.env.template ./app/.env`
-* Start dev server by `cd app && npm run start`
+# Etherscan verification
 
-## Development
+To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
 
-### Use wallet during local development
+In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
 
-For test connection of wallet extension with local blockchain need disable direct connection to blockchain.
+```shell
+hardhat run --network ropsten scripts/deploy.ts
+```
 
-* Clear variable `REACT_APP_WEB3_URL` in `./app/.env`
-* Configure crypto wallet for interact with application, [tutorial](https://trufflesuite.com/tutorial/index.html#interacting-with-the-dapp-in-a-browser)
-  * Use chain id 1337
-* Start dev server by `cd app && npm run start`
+Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
 
-### Project Structure
+```shell
+npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+```
 
-Based on default Truffle directory structure:
+# Performance optimizations
 
-* `contracts/`: Contains the Solidity source files for our smart contracts. There is an important contract in here called Migrations.sol, which we'll talk about later.
-* `migrations/`: Truffle uses a migration system to handle smart contract deployments. A migration is an additional special smart contract that keeps track of changes.
-* `test/`: Contains both JavaScript and Solidity tests for our smart contracts
-* `truffle-config.js`: Truffle configuration file
-
-## Enable tenderlit
-
-`tenderly login` - login for local development
-
-### Commands
-
-* `truffle compile` - Compile
-* `truffle migrate` - Migrate
-* `truffle migrate --f <migration-number-prefix>` - Run from specific migration
-* `truffle test` - Test contracts
-* `npm run start` - Run dev server
-* `truffle develop` - launch test blockchain with the Truffle Develop console
-* `truffle create contract YourContractName` - scaffold a contract
-* `truffle create test YourTestName` - scaffold a test
-* `ganache` - start ganache server
-* `ganache --fork https://data-seed-prebsc-1-s1.binance.org:8545` - start ganache fork of BSC test net, [full list available RPC](https://docs.binance.org/smart-chain/developer/rpc.html)
-* `tenderly export <transaction hash>` - export transaction from ganache and send to dashboard, [open local transactions dashboard](https://dashboard.tenderly.co/LeoVS09/stacking-delegator/local-transactions/)
-  
-## Forks
-
-* `https://data-seed-prebsc-1-s1.binance.org:8545` - Binance Smart Chain
-* `https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161` - Etherium Mainnet
-
-## Usefull links
-
-* [Binance Smart Chain development with Truffle](https://docs.binance.org/smart-chain/developer/deploy/truffle-new.html)
-* [RPC info](https://rpc.info/)
+For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
