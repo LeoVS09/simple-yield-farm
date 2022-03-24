@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as dotenv from "dotenv";
 
 import { HardhatUserConfig, task } from "hardhat/config";
@@ -22,13 +23,26 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
+/** Binance Smart Chain Mainnet */
+const binanceSmartChainFork = {
+  url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+  blockNumber: 16349556, // 24.3.2022
+};
+
+/** Etherium Mainnet */
+const etheriumFork = {
+  url: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+};
+
 const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    hardhat: {
+      // forking: binanceSmartChainFork,
+      forking: etheriumFork,
+      accounts: {
+        accountsBalance: "1000000000000000000000000", // 1 mil ether,
+      },
     },
   },
   gasReporter: {
