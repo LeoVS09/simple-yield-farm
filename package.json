@@ -1,5 +1,29 @@
 {
-  "name": "hardhat-project",
+  "name": "stacking-delegator",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "hardhat test",
+    "dev": "npm-watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeoVS09/stacking-delegator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LeoVS09/stacking-delegator/issues"
+  },
+  "homepage": "https://github.com/LeoVS09/stacking-delegator#readme",
+  "watch": {
+    "test": {
+      "patterns": ["contracts", "test"],
+      "extensions": "js,ts",
+      "inherit": true
+    }
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
@@ -24,6 +48,7 @@
     "ethers": "^5.6.1",
     "hardhat": "^2.9.2",
     "hardhat-gas-reporter": "^1.0.8",
+    "npm-watch": "^0.11.0",
     "prettier": "^2.6.0",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "solhint": "^3.3.7",

@@ -19,7 +19,7 @@ describe("StakingVault", function () {
     const StakingVaultFactory = await ethers.getContractFactory("StakingVault");
     contract = await StakingVaultFactory.deploy(iETH_address);
     await contract.deployed();
-    owner = (await ethers.getSigners())[0];
+    [owner] = await ethers.getSigners();
   });
 
   it("Should save money for staking", async function () {
