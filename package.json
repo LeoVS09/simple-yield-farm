@@ -20,7 +20,7 @@
   "watch": {
     "test": {
       "patterns": ["contracts", "test"],
-      "extensions": "js,ts",
+      "extensions": "js,ts,sol",
       "inherit": true
     }
   },

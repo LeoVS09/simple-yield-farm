@@ -1,4 +1,3 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 // eslint-disable-next-line node/no-missing-import
@@ -13,27 +12,40 @@ const iETH_address = "0x5ACD75f21659a59fFaB9AEBAf350351a8bfaAbc0";
 
 describe("StakingVault", function () {
   let contract: StakingVault;
-  let owner: SignerWithAddress;
 
   before(async () => {
     const StakingVaultFactory = await ethers.getContractFactory("StakingVault");
     contract = await StakingVaultFactory.deploy(iETH_address);
     await contract.deployed();
-    [owner] = await ethers.getSigners();
   });
 
   it("Should save money for staking", async function () {
-    const money = ethers.utils.parseEther("10");
+    const value = ethers.utils.parseEther("1");
+    const money = ethers.utils.formatEther(value);
 
     const tx = await contract.deposit({
-      value: money,
+      value,
     });
     const receipt = await tx.wait();
 
-    expect(await contract.getCurrentBalance()).to.equal(money);
-
     expect(
-      receipt.events?.find(({ event }) => event === "NewBalanceInStake")?.args
-    ).to.equal([await owner.getAddress(), money]);
+      ethers.utils.formatEther(await contract.getCurrentBalance())
+    ).to.equal(money);
+
+    const [newBalance] =
+      receipt.events?.find(({ event }) => event === "NewBalanceInStake")
+        ?.args || [];
+    expect(ethers.utils.formatEther(newBalance)).to.equal(
+      "0.999999999999999999"
+    );
+  });
+
+  it("Should return exchange rate", async () => {
+    const exchangeRate = ethers.utils.formatEther(
+      await contract.getExchangeRate()
+    );
+    // console.log("Current exchange rate", exchangeRate);
+
+    expect(exchangeRate.slice(0, 5)).to.equal("1.000");
   });
 });
