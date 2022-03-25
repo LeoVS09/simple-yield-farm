@@ -38,6 +38,10 @@ describe("StakingVault", function () {
     expect(ethers.utils.formatEther(newBalance)).to.equal(
       "0.999999999999999999"
     );
+
+    expect(
+      ethers.utils.formatEther(await contract.getBalanceInStake())
+    ).to.equal(ethers.utils.formatEther(newBalance));
   });
 
   it("Should return exchange rate", async () => {

@@ -81,6 +81,10 @@ contract StakingVault {
         return cells[msg.sender].balance;
     }
 
+    function getBalanceInStake() external view returns (uint) {
+        return cells[msg.sender].balance / stakeToken.exchangeRateStored();
+    }
+
     function getExchangeRate() external view returns (uint) {
         return stakeToken.exchangeRateStored();
     }
