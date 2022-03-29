@@ -1,6 +1,7 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+// Implementation at https://www.bscscan.com/address/0x2a29ecb29781214ec774544023c8fc19102786b8#code
 interface iETH {
     /**
      * @dev Caller deposits assets into the market and `_recipient` receives iToken in exchange.
@@ -43,7 +44,7 @@ contract StakingVault {
         uint balance;
     }
 
-    event NewBalanceInStake(uint256 amount);
+    event StakedInTotal(uint256 amount, uint256 exchangeRate);
 
 
     mapping (address => Cell) public cells;
@@ -55,14 +56,14 @@ contract StakingVault {
     function deposit() payable external {
         require(msg.value > 0, "Money count must be greater then zero");
 
-        Cell storage cell = cells[msg.sender];
+        Cell memory cell = cells[msg.sender];
         cell.balance = cell.balance + msg.value;
 
-        // emit TryToMint(msg.sender, msg.value);
+        uint256 expectedExchangeRate = stakeToken.exchangeRateStored();
         stakeToken.mint{ value: msg.value }(address(this));
 
         uint256 balanceInStake = stakeToken.balanceOfUnderlying(address(this));
-        emit NewBalanceInStake(balanceInStake);
+        emit StakedInTotal(balanceInStake, expectedExchangeRate);
     } 
 
     function withdraw(uint256 amount) external {
@@ -81,8 +82,10 @@ contract StakingVault {
         return cells[msg.sender].balance;
     }
 
+    uint256 private constant BASE = 10**18;
+
     function getBalanceInStake() external view returns (uint) {
-        return cells[msg.sender].balance / stakeToken.exchangeRateStored();
+        return (cells[msg.sender].balance * BASE) / stakeToken.exchangeRateStored();
     }
 
     function getExchangeRate() external view returns (uint) {
@@ -90,3 +93,6 @@ contract StakingVault {
     }
 
 }
+
+// 1 ETH -> (1.1 exchange rate) 0.999 iETH
+// 0.999 iETH -> (1.09) 0.998 ETH
