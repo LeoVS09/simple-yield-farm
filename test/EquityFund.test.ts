@@ -54,84 +54,86 @@ describe("EquityFund", function () {
     WETH.transferFrom.reverts();
   });
 
-  it("Should deposit tokens", async function () {
-    const ownerAddress = ownerAddressses[0];
-    WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("0"));
-    WETH.transferFrom
-      .whenCalledWith(ownerAddress, contract.address, toEth("10"))
-      .returns(true);
+  describe("deposit()", () => {
+    it("Should deposit tokens", async function () {
+      const ownerAddress = ownerAddressses[0];
+      WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("0"));
+      WETH.transferFrom
+        .whenCalledWith(ownerAddress, contract.address, toEth("10"))
+        .returns(true);
 
-    await contract.deposit(toEth("10"), ownerAddress, ownerAddress);
+      await contract.deposit(toEth("10"), ownerAddress, ownerAddress);
 
-    // eslint-disable-next-line no-unused-expressions
-    expect(WETH.balanceOf).to.not.have.been.called;
-    expect(WETH.transferFrom).to.have.been.calledWith(
-      ownerAddress,
-      contract.address,
-      toEth("10")
-    );
-    expectEth(await contract.totalSupply()).to.equal("10.0");
-    expectEth(await contract.balanceOf(ownerAddress)).to.equal("10.0");
-  });
+      // eslint-disable-next-line no-unused-expressions
+      expect(WETH.balanceOf).to.not.have.been.called;
+      expect(WETH.transferFrom).to.have.been.calledWith(
+        ownerAddress,
+        contract.address,
+        toEth("10")
+      );
+      expectEth(await contract.totalSupply()).to.equal("10.0");
+      expectEth(await contract.balanceOf(ownerAddress)).to.equal("10.0");
+    });
 
-  it("Should deposit second owner tokens", async function () {
-    const ownerAddress = ownerAddressses[1];
-    WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("10"));
-    WETH.transferFrom
-      .whenCalledWith(ownerAddress, contract.address, toEth("5"))
-      .returns(true);
+    it("Should deposit second owner tokens", async function () {
+      const ownerAddress = ownerAddressses[1];
+      WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("10"));
+      WETH.transferFrom
+        .whenCalledWith(ownerAddress, contract.address, toEth("5"))
+        .returns(true);
 
-    await contract.deposit(toEth("5"), ownerAddress, ownerAddress);
+      await contract.deposit(toEth("5"), ownerAddress, ownerAddress);
 
-    expect(WETH.balanceOf).to.have.been.calledWith(contract.address);
-    expect(WETH.transferFrom).to.have.been.calledWith(
-      ownerAddress,
-      contract.address,
-      toEth("5")
-    );
-    expectEth(await contract.totalSupply()).to.equal("15.0");
-    expectEth(await contract.balanceOf(ownerAddress)).to.equal("5.0");
-  });
+      expect(WETH.balanceOf).to.have.been.calledWith(contract.address);
+      expect(WETH.transferFrom).to.have.been.calledWith(
+        ownerAddress,
+        contract.address,
+        toEth("5")
+      );
+      expectEth(await contract.totalSupply()).to.equal("15.0");
+      expectEth(await contract.balanceOf(ownerAddress)).to.equal("5.0");
+    });
 
-  it("Should issue shares proportianaly to current assets (increase)", async function () {
-    // increase balance of vault without issue shares
-    WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("20"));
-    // deposit from new address
-    const ownerAddress = ownerAddressses[2];
-    WETH.transferFrom
-      .whenCalledWith(ownerAddress, contract.address, toEth("10"))
-      .returns(true);
+    it("Should issue shares proportianaly to increased assets", async function () {
+      // increase balance of vault without issue shares
+      WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("20"));
+      // deposit from new address
+      const ownerAddress = ownerAddressses[2];
+      WETH.transferFrom
+        .whenCalledWith(ownerAddress, contract.address, toEth("10"))
+        .returns(true);
 
-    await contract.deposit(toEth("10"), ownerAddress, ownerAddress);
+      await contract.deposit(toEth("10"), ownerAddress, ownerAddress);
 
-    expect(WETH.balanceOf).to.have.been.calledWith(contract.address);
-    expect(WETH.transferFrom).to.have.been.calledWith(
-      ownerAddress,
-      contract.address,
-      toEth("10")
-    );
-    expectEth(await contract.totalSupply()).to.equal("22.5");
-    expectEth(await contract.balanceOf(ownerAddress)).to.equal("7.5");
-  });
+      expect(WETH.balanceOf).to.have.been.calledWith(contract.address);
+      expect(WETH.transferFrom).to.have.been.calledWith(
+        ownerAddress,
+        contract.address,
+        toEth("10")
+      );
+      expectEth(await contract.totalSupply()).to.equal("22.5");
+      expectEth(await contract.balanceOf(ownerAddress)).to.equal("7.5");
+    });
 
-  it("Should issue shares proportianaly to current assets (decrease)", async function () {
-    // decrease balance of vault without changes shares
-    WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("20"));
-    // deposit from new address
-    const ownerAddress = ownerAddressses[3];
-    WETH.transferFrom
-      .whenCalledWith(ownerAddress, contract.address, toEth("10"))
-      .returns(true);
+    it("Should issue shares proportianaly to decreased assets", async function () {
+      // decrease balance of vault without changes shares
+      WETH.balanceOf.whenCalledWith(contract.address).returns(toEth("20"));
+      // deposit from new address
+      const ownerAddress = ownerAddressses[3];
+      WETH.transferFrom
+        .whenCalledWith(ownerAddress, contract.address, toEth("10"))
+        .returns(true);
 
-    await contract.deposit(toEth("10"), ownerAddress, ownerAddress);
+      await contract.deposit(toEth("10"), ownerAddress, ownerAddress);
 
-    expect(WETH.balanceOf).to.have.been.calledWith(contract.address);
-    expect(WETH.transferFrom).to.have.been.calledWith(
-      ownerAddress,
-      contract.address,
-      toEth("10")
-    );
-    expectEth(await contract.totalSupply()).to.equal("33.75");
-    expectEth(await contract.balanceOf(ownerAddress)).to.equal("11.25");
+      expect(WETH.balanceOf).to.have.been.calledWith(contract.address);
+      expect(WETH.transferFrom).to.have.been.calledWith(
+        ownerAddress,
+        contract.address,
+        toEth("10")
+      );
+      expectEth(await contract.totalSupply()).to.equal("33.75");
+      expectEth(await contract.balanceOf(ownerAddress)).to.equal("11.25");
+    });
   });
 });
