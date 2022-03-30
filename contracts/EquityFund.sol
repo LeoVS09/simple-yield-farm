@@ -8,16 +8,9 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "./SimpleVault.sol";
 
-contract EquityFund is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
-    
-    using SafeERC20Upgradeable for IERC20Upgradeable;
-
-    /// Contract of token which will be storade in this fund
-    IERC20Upgradeable internal storedToken;
-    
-    /// Amount of tokens that a borrowed
-    uint256 totalDebt;
+contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// Fired when new amount of thokens deposited and shares a issued for recepient
     event Deposit(uint256 amount, uint256 shares, address sender, address holder);
@@ -30,8 +23,7 @@ contract EquityFund is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable
         __ERC20_init("EquityFund", "EFS");
         __ERC20Burnable_init();
         __Ownable_init();
-
-        storedToken = IERC20Upgradeable(storageTokenAddress);
+        __SimpleVault_init(storageTokenAddress);
     }
 
     /// Add deposit to fund storage and issues shares for a recepient
@@ -47,7 +39,7 @@ contract EquityFund is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable
         uint256 shares = _issueShares(amount, holder);
 
         // Transfer tokens from sender to this contract
-        storedToken.safeTransferFrom(sender, address(this), amount);
+        _transferAssetsFrom(sender, address(this), amount);
 
         emit Deposit(amount, shares, sender, holder);
         return shares;
@@ -88,12 +80,5 @@ contract EquityFund is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable
     function _probablyLostAssets() internal virtual view returns (uint256) {
         // TODO: expected lost assets since last update of assets
         return 0;
-    }
-
-    /// Returns the total quantity of all assets under control of this
-    /// fund, whether they're loaned out to a strategy, or currently held in
-    /// the fund.
-    function _totalAssets() internal view returns (uint256) {
-        return storedToken.balanceOf(address(this)) + totalDebt;
     }
 }

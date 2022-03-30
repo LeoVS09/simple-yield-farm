@@ -2,7 +2,7 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xD49a0e9A4CD5979aE36840f542D2d7f02C4817Be",
-    "txHash": "0x05fcde8b39e97b13644405bc37152c38811565b9959261030beed5e2325b3ab3"
+    "txHash": "0x5bb67febd84f6202b7552afc30f611fc5cb4518bd363705b1e659cbfc8955f0f"
   },
   "proxies": [
     {
@@ -12,7 +12,7 @@
     },
     {
       "address": "0xe1Fd27F4390DcBE165f4D60DBF821e4B9Bb02dEd",
-      "txHash": "0xee98b6a0f5098f88ba6d61e054f261423e091f738e538370cfba695ed2840a94",
+      "txHash": "0x03d21bfea50ae2a9c9837c35112b5b384f3629ed9dd8937a58d8e84aedd92647",
       "kind": "transparent"
     }
   ],
@@ -159,9 +159,9 @@
         }
       }
     },
-    "3a47855a9a1f709ee2492a47683bd7eceadf1f28d34371ca426c967e413b6d8c": {
+    "8e2df910bca2db4e1aa7a89cfafee5a10c4d0dfd966c302be135c2213db72efa": {
       "address": "0x870526b7973b56163a6997bB7C886F5E4EA53638",
-      "txHash": "0xa8bad189c919404882dc8ef692f0ea3f05376462d3e21886a0d03934cb4b10c6",
+      "txHash": "0xcf6a514b8faa47b892f75fe896b53b28e8e77fa7046a5a613db2564965c46290",
       "layout": {
         "storage": [
           {
@@ -181,9 +181,25 @@
             "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
           },
           {
-            "label": "__gap",
+            "label": "assets",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IERC20Upgradeable)947",
+            "contract": "SimpleVault",
+            "src": "contracts/SimpleVault.sol:17"
+          },
+          {
+            "label": "totalDebt",
             "offset": 0,
             "slot": "1",
+            "type": "t_uint256",
+            "contract": "SimpleVault",
+            "src": "contracts/SimpleVault.sol:20"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
             "type": "t_array(t_uint256)50_storage",
             "contract": "ContextUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
@@ -191,7 +207,7 @@
           {
             "label": "_balances",
             "offset": 0,
-            "slot": "51",
+            "slot": "52",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "ERC20Upgradeable",
             "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:37"
@@ -199,7 +215,7 @@
           {
             "label": "_allowances",
             "offset": 0,
-            "slot": "52",
+            "slot": "53",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
             "contract": "ERC20Upgradeable",
             "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:39"
@@ -207,7 +223,7 @@
           {
             "label": "_totalSupply",
             "offset": 0,
-            "slot": "53",
+            "slot": "54",
             "type": "t_uint256",
             "contract": "ERC20Upgradeable",
             "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:41"
@@ -215,7 +231,7 @@
           {
             "label": "_name",
             "offset": 0,
-            "slot": "54",
+            "slot": "55",
             "type": "t_string_storage",
             "contract": "ERC20Upgradeable",
             "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:43"
@@ -223,7 +239,7 @@
           {
             "label": "_symbol",
             "offset": 0,
-            "slot": "55",
+            "slot": "56",
             "type": "t_string_storage",
             "contract": "ERC20Upgradeable",
             "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44"
@@ -231,7 +247,7 @@
           {
             "label": "__gap",
             "offset": 0,
-            "slot": "56",
+            "slot": "57",
             "type": "t_array(t_uint256)45_storage",
             "contract": "ERC20Upgradeable",
             "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:394"
@@ -239,7 +255,7 @@
           {
             "label": "__gap",
             "offset": 0,
-            "slot": "101",
+            "slot": "102",
             "type": "t_array(t_uint256)50_storage",
             "contract": "ERC20BurnableUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol:51"
@@ -247,7 +263,7 @@
           {
             "label": "_owner",
             "offset": 0,
-            "slot": "151",
+            "slot": "152",
             "type": "t_address",
             "contract": "OwnableUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
@@ -255,7 +271,7 @@
           {
             "label": "__gap",
             "offset": 0,
-            "slot": "152",
+            "slot": "153",
             "type": "t_array(t_uint256)49_storage",
             "contract": "OwnableUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
@@ -263,7 +279,7 @@
           {
             "label": "_status",
             "offset": 0,
-            "slot": "201",
+            "slot": "202",
             "type": "t_uint256",
             "contract": "ReentrancyGuardUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
@@ -271,26 +287,10 @@
           {
             "label": "__gap",
             "offset": 0,
-            "slot": "202",
+            "slot": "203",
             "type": "t_array(t_uint256)49_storage",
             "contract": "ReentrancyGuardUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
-          },
-          {
-            "label": "storedToken",
-            "offset": 0,
-            "slot": "251",
-            "type": "t_contract(IERC20Upgradeable)947",
-            "contract": "EquityFund",
-            "src": "contracts/EquityFund.sol:17"
-          },
-          {
-            "label": "totalDebt",
-            "offset": 0,
-            "slot": "252",
-            "type": "t_uint256",
-            "contract": "EquityFund",
-            "src": "contracts/EquityFund.sol:20"
           }
         ],
         "types": {
