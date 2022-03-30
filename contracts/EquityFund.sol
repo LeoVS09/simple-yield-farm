@@ -5,16 +5,16 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-// TODO: rename to equity fund
-contract SharedVault is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable {
+contract EquityFund is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    /// Contract of token which will be storade in this vault
-    IERC20 internal storedToken;
+    /// Contract of token which will be storade in this fund
+    IERC20Upgradeable internal storedToken;
     
     /// Amount of tokens that a borrowed
     uint256 totalDebt;
@@ -25,39 +25,39 @@ contract SharedVault is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeabl
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
-    /// storageTokenAddress - address of ERC20 token contract which will be storade in vault
+    /// storageTokenAddress - address of ERC20 token contract which will be stored in fund
     function initialize(address storageTokenAddress) initializer public {
-        __ERC20_init("SharedVault", "SHV");
+        __ERC20_init("EquityFund", "EFS");
         __ERC20Burnable_init();
         __Ownable_init();
 
-        storedToken = IERC20(storageTokenAddress);
+        storedToken = IERC20Upgradeable(storageTokenAddress);
     }
 
-    /// Add deposit to vault storage and issues shares for a recepient
+    /// Add deposit to fund storage and issues shares for a recepient
     /// Mint shares based on expected value under control at the moment
     /// Not collect real assets from borrowers, as it allow manipulate issue rate
     /// Will transfer `amount` of tokens from `sender` and issue shares to `holder`
-    function _deposit(uint256 amount, address sender, address holder) internal returns (uint256) {
-        // use nonReentrant for public function
+    function deposit(uint256 amount, address sender, address holder) external nonReentrant returns (uint256) {
         require(amount > 0, "For deposit amount must be non-zero");
         require(holder != address(0), "Holder cannot be zero");
         require(holder != address(this), "Holder cannot be this contract");
 
         // Issue new shares (needs to be done before taking deposit to be accurate)
-        uint256 shares = _issueSharesForAmount(amount, holder);
+        uint256 shares = _issueShares(amount, holder);
 
         // Transfer tokens from sender to this contract
         storedToken.safeTransferFrom(sender, address(this), amount);
 
         emit Deposit(amount, shares, sender, holder);
+        return shares;
     }
 
-    /// Issues `amount` Vault shares to `holder`.
+    /// Issues `amount` fund shares to `holder`.
     /// Shares must be issued prior to taking on new collateral, or
     /// calculation will be wrong. This means that only *trusted* tokens
     /// (with no capability for exploitative behavior) can be used.
-    function _issueSharesForAmount(uint256 amount, address holder) internal virtual returns (uint256) {
+    function _issueShares(uint256 amount, address holder) internal virtual returns (uint256) {
         require(amount > 0, "For issue shares amount must be non-zero");
 
         if (totalSupply() == 0) {
@@ -66,7 +66,7 @@ contract SharedVault is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeabl
             return amount;
         }
 
-        // Mint amount of shares based on what the Vault is managing overall
+        // Mint amount of shares based on what the fund is managing overall
         // if sqrt(totalSupply()) > 1e39, this could potentially revert
         // TODO: use safe math
         // TODO: use rounding calculation
@@ -77,7 +77,7 @@ contract SharedVault is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeabl
         return shares;
     }
 
-    /// Calculate how much assets currently have vault 
+    /// Calculate how much assets currently have fund 
     /// Expectation based on real assets minus probably lost assets
     function _expectedAssets() internal virtual view returns (uint256) {
         return _totalAssets() - _probablyLostAssets();
@@ -85,14 +85,14 @@ contract SharedVault is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeabl
 
     /// Assets can be lost because exists time difference between 
     /// moment when assets was borrowed and moment when current assets of borrowers was updated. 
-    function _probablyLostAssets()internal virtual view returns (uint256) {
+    function _probablyLostAssets() internal virtual view returns (uint256) {
         // TODO: expected lost assets since last update of assets
         return 0;
     }
 
     /// Returns the total quantity of all assets under control of this
-    /// Vault, whether they're loaned out to a Strategy, or currently held in
-    /// the Vault.
+    /// fund, whether they're loaned out to a strategy, or currently held in
+    /// the fund.
     function _totalAssets() internal view returns (uint256) {
         return storedToken.balanceOf(address(this)) + totalDebt;
     }
