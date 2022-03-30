@@ -47,7 +47,7 @@ contract EquityFund is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable
         uint256 shares = _issueShares(amount, holder);
 
         // Transfer tokens from sender to this contract
-        storedToken.safeTransferFrom(sender, address(this), amount);
+        storedToken.transferFrom(sender, address(this), amount);
 
         emit Deposit(amount, shares, sender, holder);
         return shares;

@@ -4,6 +4,8 @@ import { IERC20 } from "../../typechain";
 import { WETHABI } from "./WETH";
 import { PayableOverrides, ContractTransaction } from "ethers";
 
+export { WETHABI };
+
 export interface IWETH extends IERC20 {
   deposit(
     overrides?: PayableOverrides & { from?: string | Promise<string> }

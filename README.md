@@ -21,6 +21,8 @@ dApp for delegating cryptocurrencies to Validator
 * `npx hardhat accounts` - List development accounts
 * `npx hardhat test` - Run test
 * `npm run dev` - Run tests in watch mode
+* `npx hardhat test --trace` - shows logs + calls
+* `npx hardhat test --fulltrace` - shows logs + calls + sloads + sstores
 
 #### Rest of commands
 
