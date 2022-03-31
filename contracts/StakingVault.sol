@@ -1,98 +1,50 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// Implementation at https://www.bscscan.com/address/0x2a29ecb29781214ec774544023c8fc19102786b8#code
-interface iETH {
-    /**
-     * @dev Caller deposits assets into the market and `_recipient` receives iToken in exchange.
-     * @param _recipient The account that would receive the iToken.
-     */
-    function mint(address _recipient) external payable;
-    /**
-     * @dev Get cash balance of this iToken in the underlying token.
-     */
-    function getCash() external view returns (uint256);
-    /**
-     * @dev Gets the underlying balance of the `_account`.
-     * @param _account The address of the account to query.
-     */
-    function balanceOfUnderlying(address _account) external returns (uint256);
-    /**
-     * @dev Caller redeems specified iToken from `_from` to get underlying token.
-     * @param _from The account that would burn the iToken.
-     * @param _redeemiToken The number of iToken to redeem.
-     */
-    function redeem(address _from, uint256 _redeemiToken) external;
-    /**
-     * @dev Gets the newest exchange rate by accruing interest.
-     */
-    function exchangeRateCurrent() external returns (uint256);
-
-    /**
-     * @dev Calculates the exchange rate without accruing interest.
-     */
-    function exchangeRateStored() external view returns (uint256);
-
-}
+import "./dependencies/iETH.sol";
+import "./EquityFund.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 
-contract StakingVault {
+contract StakingVault is Initializable, EquityFund {
 
     iETH internal stakeToken;
 
-    struct Cell {
-        uint balance;
-    }
-
-    event StakedInTotal(uint256 amount, uint256 exchangeRate);
-
-
-    mapping (address => Cell) public cells;
-
-    constructor(address stakeTokenContractAddress) {
+    /// Amount of tokens that a borrowed from this vault.
+    uint256 internal totalDebt;
+    
+    /// name - name of the token
+    /// symbol - token symbol
+    /// storageTokenAddress - address of ERC20 token contract which will be stored in fund
+    /// stakeTokenContractAddress - address of token where possible stake token
+    function initialize(
+        string memory name, 
+        string memory symbol, 
+        address storageTokenAddress, 
+        address stakeTokenContractAddress
+    ) initializer public {
+        EquityFund.initialize(name, symbol, storageTokenAddress);
         stakeToken = iETH(stakeTokenContractAddress);
     }
 
-    function deposit() payable external {
-        require(msg.value > 0, "Money count must be greater then zero");
-
-        Cell memory cell = cells[msg.sender];
-        cell.balance = cell.balance + msg.value;
-
-        uint256 expectedExchangeRate = stakeToken.exchangeRateStored();
-        stakeToken.mint{ value: msg.value }(address(this));
-
-        uint256 balanceInStake = stakeToken.balanceOfUnderlying(address(this));
-        emit StakedInTotal(balanceInStake, expectedExchangeRate);
-    } 
-
-    function withdraw(uint256 amount) external {
-        require(amount > 0, "Withdraw amount must be greater than zero");
-
-        Cell storage cell = cells[msg.sender];
-        require(cell.balance >= amount, "Cell balance lower then requested withdraw");
-
-        cell.balance = cell.balance - amount;
-        
-        stakeToken.redeem(address(this), amount);
-        payable(msg.sender).transfer(amount);
+    /// Returns the total quantity of all assets under control of this
+    /// fund, whether they're loaned out to a strategy, or currently held in
+    /// the fund.
+    function _totalAssets() internal override view returns (uint256) {
+        return assets.balanceOf(address(this)) + totalDebt;
     }
 
-    function getCurrentBalance() external view returns (uint) {
-        return cells[msg.sender].balance;
+    /// Calculate how much assets currently have fund 
+    /// Expectation based on real assets minus probably lost assets
+    function _expectedAssets() internal override view returns (uint256) {
+        return _totalAssets() - _probablyLostAssets();
     }
 
-    uint256 private constant BASE = 10**18;
-
-    function getBalanceInStake() external view returns (uint) {
-        return (cells[msg.sender].balance * BASE) / stakeToken.exchangeRateStored();
-    }
-
-    function getExchangeRate() external view returns (uint) {
-        return stakeToken.exchangeRateStored();
+    /// Assets can be lost because exists time difference between 
+    /// moment when assets was borrowed and moment when current assets of borrowers was updated. 
+    function _probablyLostAssets() internal view returns (uint256) {
+        // TODO: expected lost assets since last update of assets
+        return 0;
     }
 
 }
-
-// 1 ETH -> (1.1 exchange rate) 0.999 iETH
-// 0.999 iETH -> (1.09) 0.998 ETH

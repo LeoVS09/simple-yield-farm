@@ -19,11 +19,14 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     constructor() initializer {}
 
     /// storageTokenAddress - address of ERC20 token contract which will be stored in fund
-    function initialize(address storageTokenAddress) initializer public {
-        __ERC20_init("EquityFund", "EFS");
+    /// name - name of the token
+    /// symbol - token symbol
+    function initialize(string memory name, string memory symbol, address storageTokenAddress) initializer public {
+        __ERC20_init(name, symbol);
         __ERC20Burnable_init();
         __Ownable_init();
         __SimpleVault_init(storageTokenAddress);
+
     }
 
     /// Add deposit to fund storage and issues shares for a recepient
@@ -70,15 +73,8 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     }
 
     /// Calculate how much assets currently have fund 
-    /// Expectation based on real assets minus probably lost assets
     function _expectedAssets() internal virtual view returns (uint256) {
-        return _totalAssets() - _probablyLostAssets();
-    }
-
-    /// Assets can be lost because exists time difference between 
-    /// moment when assets was borrowed and moment when current assets of borrowers was updated. 
-    function _probablyLostAssets() internal virtual view returns (uint256) {
-        // TODO: expected lost assets since last update of assets
-        return 0;
+        // Need override with calcualtions based on farming method
+        return _totalAssets();
     }
 }

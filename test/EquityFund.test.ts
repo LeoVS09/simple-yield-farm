@@ -39,6 +39,8 @@ describe("EquityFund", function () {
 
     const EquityFundFactory = await ethers.getContractFactory("EquityFund");
     const instance = await upgrades.deployProxy(EquityFundFactory, [
+      "Equity Fund",
+      "EFS",
       WETH.address,
     ]);
     contract = (await upgrades.upgradeProxy(

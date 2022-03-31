@@ -16,19 +16,12 @@ contract SimpleVault is Initializable {
     /// Contract of token which will be stored in this vault
     IERC20Upgradeable internal assets;
     
-    /// Amount of tokens that a borrowed from this vault.
-    uint256 internal totalDebt;
-
     /**
      * @dev Sets the values for {assets}.
      *
      * Init ERC20 based contract with given address
      */
-    function __SimpleVault_init(address storageTokenAddress) internal onlyInitializing {
-        __SimpleVault_init_unchained(storageTokenAddress);
-    }
-
-    function __SimpleVault_init_unchained(address storageTokenAddress) internal onlyInitializing {
+    function __SimpleVault_init(address storageTokenAddress) initializer internal {
         assets = IERC20Upgradeable(storageTokenAddress);
     }
 
@@ -37,10 +30,8 @@ contract SimpleVault is Initializable {
         assets.safeTransferFrom(from, to, value);
     }
 
-    /// Returns the total quantity of all assets under control of this
-    /// fund, whether they're loaned out to a strategy, or currently held in
-    /// the fund.
-    function _totalAssets() internal view returns (uint256) {
-        return assets.balanceOf(address(this)) + totalDebt;
+    /// Returns the total quantity of all assets under control of this vault
+    function _totalAssets() internal virtual view returns (uint256) {
+        return assets.balanceOf(address(this));
     }
 }
