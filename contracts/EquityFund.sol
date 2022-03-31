@@ -53,11 +53,17 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     /// calculation will be wrong. This means that only *trusted* tokens
     /// (with no capability for exploitative behavior) can be used.
     function _issueShares(uint256 amount, address holder) internal virtual returns (uint256) {
+        uint256 shares = _estimateShares(amount);
+        _mint(holder, shares);
+        return shares;
+    }
+
+    /// Estimate how much shares should be issued if given amount will be added to fund
+    function _estimateShares(uint256 amount) internal virtual returns (uint256) {
         require(amount > 0, "For issue shares amount must be non-zero");
 
         if (totalSupply() == 0) {
             // No existing shares, so mint 1:1
-            _mint(holder, amount);
             return amount;
         }
 
@@ -68,7 +74,6 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         uint256 shares = amount * totalSupply() / _expectedAssets();
         require(shares > 0, "Incorrect calcualtion of shares during issing"); // rounding calcualtion must fix it
 
-        _mint(holder, shares);
         return shares;
     }
 
