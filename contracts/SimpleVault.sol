@@ -30,8 +30,8 @@ contract SimpleVault is Initializable {
         assets.safeTransferFrom(from, to, value);
     }
 
-    /// Returns the total quantity of all assets under control of this vault
-    function _totalAssets() internal virtual view returns (uint256) {
+    /// Assets which are directly available for fund
+    function _availableAssets() internal view returns (uint256) {
         return assets.balanceOf(address(this));
     }
 }

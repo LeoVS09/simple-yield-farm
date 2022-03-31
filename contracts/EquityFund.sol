@@ -12,15 +12,21 @@ import "./SimpleVault.sol";
 
 contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
-    /// Fired when new amount of thokens deposited and shares a issued for recepient
-    event Deposit(uint256 amount, uint256 shares, address sender, address holder);
+    /// 100% or 10k basis points for loss
+    uint256 constant LOSS_MAX_BASIS_POINTS = 10_000;
+
+
+    /// Fired when new amount of tokens deposited and shares a issued for holder
+    event Deposit(uint256 amount, uint256 shares, address holder);
+    /// Fired when assets for a given shares a withdrawn
+    event Withdraw(address holder, uint256 maxShares, uint256 maxLoss, uint256 shares, uint256 amount);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
-    /// storageTokenAddress - address of ERC20 token contract which will be stored in fund
-    /// name - name of the token
-    /// symbol - token symbol
+    /// @param storageTokenAddress - address of ERC20 token contract which will be stored in fund
+    /// @param name - name of the token
+    /// @param symbol - token symbol
     function initialize(string memory name, string memory symbol, address storageTokenAddress) initializer public {
         __ERC20_init(name, symbol);
         __ERC20Burnable_init();
@@ -32,20 +38,44 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     /// Add deposit to fund storage and issues shares for a recepient
     /// Mint shares based on expected value under control at the moment
     /// Not collect real assets from borrowers, as it allow manipulate issue rate
-    /// Will transfer `amount` of tokens from `sender` and issue shares to `holder`
-    function deposit(uint256 amount, address sender, address holder) external nonReentrant returns (uint256) {
+    /// Will transfer `amount` of tokens from `message sender` and issue shares to him
+    function deposit(uint256 amount) external nonReentrant returns (uint256) {
+        // Do not allow specify sender and holder, 
+        //  as it allow someone use not his tokens for issue shares to someone else
         require(amount > 0, "For deposit amount must be non-zero");
-        require(holder != address(0), "Holder cannot be zero");
-        require(holder != address(this), "Holder cannot be this contract");
 
         // Issue new shares (needs to be done before taking deposit to be accurate)
-        uint256 shares = _issueShares(amount, holder);
+        uint256 shares = _issueShares(amount, msg.sender);
 
         // Transfer tokens from sender to this contract
-        _transferAssetsFrom(sender, address(this), amount);
+        _transferAssetsFrom(msg.sender, address(this), amount);
 
-        emit Deposit(amount, shares, sender, holder);
+        emit Deposit(amount, shares, msg.sender);
         return shares;
+    }
+
+    /// Withdraws the calling account's tokens from this Vault, redeeming
+    ///  amount `maxShares` for an appropriate amount of tokens.
+    ///  As holder address will be used message sender
+    /// @param maxShares - How many shares to try redeem for tokens, if will be not possible redeem all, then will be redeemed only available partially
+    /// @param maxLoss - The maximum acceptable loss to sustain on withdrawal.
+    ///  Up to that amount of shares can be burnt to cover losses on withdrawal.
+    ///  Represented in uint256, where 1 equal 0.01%.
+    function withdraw(uint256 maxShares, uint256 maxLoss) external nonReentrant returns (uint256) {
+        // Do not allow specify holder address. If method called by someone other, 
+        //  he can burn shares someone another by calling this method
+        require(maxShares > 0, "Shares amount must be non-zero");
+        require(maxLoss <= LOSS_MAX_BASIS_POINTS, "maxLoss is bigger 100%");
+        require(maxShares <= balanceOf(msg.sender), "More shares specified, sender not have enough");
+
+        // Reddem shares for some amount of tokens
+        (uint256 shares, uint256 amount) = _redeemShares(maxShares, maxLoss);
+
+        // Withdraw remaining balance to msg.sender (minus fee)
+        _transferAssetsFrom(address(this), msg.sender, amount);
+
+        emit Withdraw(msg.sender, maxShares, maxLoss, shares, amount);
+        return amount;
     }
 
     /// Issues `amount` fund shares to `holder`.
@@ -58,11 +88,22 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         return shares;
     }
 
-    /// Estimate how much shares should be issued if given amount will be added to fund
-    function _estimateShares(uint256 amount) internal virtual returns (uint256) {
-        require(amount > 0, "For issue shares amount must be non-zero");
+    /// Redeem up to `maxShares` for assets, and return `redeemd shares, assets ammount`.
+    /// Allow `maxLoss`
+    function _redeemShares(uint256 maxShares, uint256 maxLoss) internal virtual returns (uint256, uint256) {
+        // Calculate how much tokens must be withdraw based on current assets of the fund
+        uint256 value = _estimateShareValue(maxShares);
+        // Burn shares (full value of what is being withdrawn)
+        _burn(msg.sender, maxShares);
+        return (maxShares, value);
+    }
 
-        if (totalSupply() == 0) {
+    /// Estimate how much shares should be issued if given amount will be added to fund
+    function _estimateShares(uint256 amount) internal virtual view returns (uint256) {
+        require(amount > 0, "For issue shares amount must be non-zero");
+        uint256 _totalSupply = totalSupply();
+
+        if (_totalSupply == 0) {
             // No existing shares, so mint 1:1
             return amount;
         }
@@ -71,15 +112,32 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         // if sqrt(totalSupply()) > 1e39, this could potentially revert
         // TODO: use safe math
         // TODO: use rounding calculation
-        uint256 shares = amount * totalSupply() / _expectedAssets();
+        uint256 shares = amount * _totalSupply / _expectedAssets();
         require(shares > 0, "Incorrect calcualtion of shares during issing"); // rounding calcualtion must fix it
 
         return shares;
     }
 
+    /// Estimate how much tokens must be withdraw based on current assets of the fund 
+    function _estimateShareValue(uint256 shares) internal virtual view returns (uint256) {
+        require(shares > 0, "For estimate value shares amount must be non-zero");
+        
+        uint256 _totalSupply = totalSupply();
+        require(shares <= _totalSupply, "Cannot calcualte value for not existing shares");
+        
+        // Determines the current value of `shares`.
+        // if sqrt(_expectedAssets()) >>> 1e39, this could potentially revert
+        // TODO: use safe math
+        // TODO: use rounding calculation
+        uint256 value = shares * _expectedAssets() / _totalSupply;
+        require(shares > 0, "Incorrect calcualtion of share's value"); // rounding calcualtion must fix it
+
+        return value;
+    }
+
     /// Calculate how much assets currently have fund 
     function _expectedAssets() internal virtual view returns (uint256) {
         // Need override with calcualtions based on farming method
-        return _totalAssets();
+        return _availableAssets();
     }
 }

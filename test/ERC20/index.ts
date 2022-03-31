@@ -1,12 +1,12 @@
 import { ethers } from "hardhat";
-import { IERC20 } from "../../typechain";
+import { IERC20Upgradeable } from "../../typechain";
 // TODO: use this plugin instaed save API https://www.npmjs.com/package/hardhat-etherscan-abi
 import { WETHABI } from "./WETH";
 import { PayableOverrides, ContractTransaction } from "ethers";
 
 export { WETHABI };
 
-export interface IWETH extends IERC20 {
+export interface IWETH extends IERC20Upgradeable {
   deposit(
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
