@@ -67,6 +67,15 @@ contract StakingVault is Initializable, EquityFund {
         return (shares, value);
     }
 
+    /// Hook which must return assets to fund if it possible
+    /// @param targetBalance - balance which fund must have at the end of hook executuin
+    /// @return totalLoss - loss of all performed actions
+    function _returnAssetsToFund(uint256 targetBalance) internal virtual returns (uint256) {
+        // Need implement with proper way to return assets
+        // For testing purposes will return all required additional assets as lost
+        return targetBalance - _availableAssets();
+    }
+
     /// Determines how many shares `amount` of token would receive.
     // Very strange function, not sure why we cannot use _estimateShares directly
     //  but use this logic just in case
@@ -76,15 +85,6 @@ contract StakingVault is Initializable, EquityFund {
         }
 
         return _estimateShares(amount);
-    }
-
-    /// Hook which must return assets to fund if it possible
-    /// @param targetBalance - balance which fund must have at the end of hook executuin
-    /// @return totalLoss - loss of all performed actions
-    function _returnAssetsToFund(uint256 targetBalance) internal virtual returns (uint256) {
-        // Need implement with proper way to return assets
-        // For testing purposes will return all required additional assets as lost
-        return targetBalance - _availableAssets();
     }
 
     /// Calculate how much assets currently have fund 
