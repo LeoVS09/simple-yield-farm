@@ -14,7 +14,7 @@ contract SimpleVault is Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /// Contract of token which will be stored in this vault
-    IERC20Upgradeable internal assets;
+    IERC20Upgradeable public assets;
     
     /**
      * @dev Sets the values for {assets}.
@@ -29,6 +29,12 @@ contract SimpleVault is Initializable {
     function _transferAssetsFrom(address from, address to, uint256 value) internal {
         assets.safeTransferFrom(from, to, value);
     }
+
+    /// Safely transfer assets token to sender
+    function _transferAssets(address to, uint256 value) internal {
+        assets.safeTransfer(to, value);
+    }
+
 
     /// Assets which are directly available for fund
     function _availableAssets() internal view returns (uint256) {

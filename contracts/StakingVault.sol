@@ -10,8 +10,7 @@ contract StakingVault is Initializable, EquityFund {
 
     iETH internal stakeToken;
 
-    /// Amount of tokens that a borrowed from this vault.
-    uint256 internal totalDebt;
+    uint256 constant DEGRADATION_COEFFICIENT = 10 ** 18;
     
     /// name - name of the token
     /// symbol - token symbol
@@ -71,7 +70,7 @@ contract StakingVault is Initializable, EquityFund {
     /// @param targetBalance - balance which fund must have at the end of hook executuin
     /// @return totalLoss - loss of all performed actions
     function _returnAssetsToFund(uint256 targetBalance) internal virtual returns (uint256) {
-        // Need implement with proper way to return assets
+        // TODO: implement with proper way to return assets
         // For testing purposes will return all required additional assets as lost
         return targetBalance - _availableAssets();
     }
@@ -90,13 +89,13 @@ contract StakingVault is Initializable, EquityFund {
     /// Calculate how much assets currently have fund 
     /// Expectation based on real assets minus probably lost assets
     function _expectedAssets() internal override view returns (uint256) {
-        return _totalAssets() - _probablyLostAssets();
+        return totalAssets() - _probablyLostAssets();
     }
 
     /// Returns the total quantity of all assets under control of this
     /// fund, whether they're loaned out to a strategy, or currently held in
     /// the fund.
-    function _totalAssets() internal view returns (uint256) {
+    function totalAssets() public view returns (uint256) {
         return assets.balanceOf(address(this)) + totalDebt;
     }
 

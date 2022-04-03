@@ -15,7 +15,6 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     /// 100% or 10k basis points for loss
     uint256 constant LOSS_MAX_BASIS_POINTS = 10_000;
 
-
     /// Fired when new amount of tokens deposited and shares a issued for holder
     event Deposit(uint256 amount, uint256 shares, address holder);
     /// Fired when assets for a given shares a withdrawn
