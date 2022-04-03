@@ -278,6 +278,7 @@ contract StrategiesReporter is Initializable, StrategiesManager {
 
     function _issueSharesForFund(uint256 amount) internal returns (uint256) {
         // under the hood must call fund._issueSharesForAmount
+        revert("not implemented");
     }
 
     /// @notice
@@ -309,6 +310,7 @@ contract StrategiesReporter is Initializable, StrategiesManager {
 
         // Can only borrow up to what the contract has in reserve
         // NOTE: Running near 100% is discouraged
+        revert("Need use avaialbe assets not a reporter, but fund and reporter together");
         available = MathUpgradeable.min(available, _availableAssets());
 
         // Adjust by min and max borrow limits (per harvest)
