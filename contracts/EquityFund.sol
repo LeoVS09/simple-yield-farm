@@ -13,7 +13,7 @@ import "./SimpleVault.sol";
 contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// 100% or 10k basis points for loss
-    uint256 constant LOSS_MAX_BASIS_POINTS = 10_000;
+    uint256 constant MAX_BASIS_POINTS = 10_000;
 
     /// Fired when new amount of tokens deposited and shares a issued for holder
     event Deposit(uint256 amount, uint256 shares, address holder);
@@ -64,7 +64,7 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         // Do not allow specify holder address. If method called by someone other, 
         //  he can burn shares someone another by calling this method
         require(maxShares > 0, "Shares amount must be non-zero");
-        require(maxLoss <= LOSS_MAX_BASIS_POINTS, "maxLoss is bigger 100%");
+        require(maxLoss <= MAX_BASIS_POINTS, "maxLoss is bigger 100%");
         require(maxShares <= balanceOf(msg.sender), "More shares specified, sender not have enough");
 
         // Reddem shares for some amount of tokens

@@ -17,12 +17,21 @@ interface iETH {
      * @param _account The address of the account to query.
      */
     function balanceOfUnderlying(address _account) external returns (uint256);
+    
     /**
      * @dev Caller redeems specified iToken from `_from` to get underlying token.
      * @param _from The account that would burn the iToken.
      * @param _redeemiToken The number of iToken to redeem.
      */
     function redeem(address _from, uint256 _redeemiToken) external;
+
+    /**
+     * @dev Caller redeems specified underlying from `_from` to get underlying token.
+     * @param _from The account that would burn the iToken.
+     * @param _redeemUnderlying The number of underlying to redeem.
+     */
+    function redeemUnderlying(address _from, uint256 _redeemUnderlying) external;
+    
     /**
      * @dev Gets the newest exchange rate by accruing interest.
      */
@@ -32,5 +41,6 @@ interface iETH {
      * @dev Calculates the exchange rate without accruing interest.
      */
     function exchangeRateStored() external view returns (uint256);
+
 
 }

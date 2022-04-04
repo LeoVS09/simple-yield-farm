@@ -4,26 +4,24 @@ pragma solidity ^0.8.0;
 import "./dependencies/iETH.sol";
 import "./EquityFund.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "./Lender.sol";
 
-
-contract StakingVault is Initializable, EquityFund {
-
-    iETH internal stakeToken;
+contract StakingVault is Initializable, EquityFund, Lender {
 
     uint256 constant DEGRADATION_COEFFICIENT = 10 ** 18;
     
     /// name - name of the token
     /// symbol - token symbol
     /// storageTokenAddress - address of ERC20 token contract which will be stored in fund
-    /// stakeTokenContractAddress - address of token where possible stake token
+    /// strategyAddress - address of strategy which will stake tokens
     function initialize(
         string memory name, 
         string memory symbol, 
         address storageTokenAddress, 
-        address stakeTokenContractAddress
+        address strategyAddress
     ) initializer public {
         EquityFund.initialize(name, symbol, storageTokenAddress);
-        stakeToken = iETH(stakeTokenContractAddress);
+        __Lender_init(strategyAddress);
     }
 
     /// Redeem up to `maxShares` for assets, and return `redeemd shares, assets ammount`.
@@ -36,7 +34,7 @@ contract StakingVault is Initializable, EquityFund {
         
         if (value > _availableAssets()) {
             // try return assets under control of the fund
-            uint256 totalLoss = _returnAssetsToFund(value);
+            uint256 totalLoss = _returnAssets(value);
 
             uint256 fundBalance = _availableAssets();
             if (value > fundBalance) {
@@ -57,7 +55,7 @@ contract StakingVault is Initializable, EquityFund {
             // withdrawing are more than what is considered acceptable
             // TODO: use safe math
             // TODO: Maybe use rounding calculation
-            require(totalLoss <= (value + totalLoss) * maxLoss / LOSS_MAX_BASIS_POINTS);
+            require(totalLoss <= (value + totalLoss) * maxLoss / MAX_BASIS_POINTS);
         }
 
         // Burn shares (full value of what is being withdrawn)
@@ -66,14 +64,6 @@ contract StakingVault is Initializable, EquityFund {
         return (shares, value);
     }
 
-    /// Hook which must return assets to fund if it possible
-    /// @param targetBalance - balance which fund must have at the end of hook executuin
-    /// @return totalLoss - loss of all performed actions
-    function _returnAssetsToFund(uint256 targetBalance) internal virtual returns (uint256) {
-        // TODO: implement with proper way to return assets
-        // For testing purposes will return all required additional assets as lost
-        return targetBalance - _availableAssets();
-    }
 
     /// Determines how many shares `amount` of token would receive.
     // Very strange function, not sure why we cannot use _estimateShares directly
@@ -90,13 +80,6 @@ contract StakingVault is Initializable, EquityFund {
     /// Expectation based on real assets minus probably lost assets
     function _expectedAssets() internal override view returns (uint256) {
         return totalAssets() - _probablyLostAssets();
-    }
-
-    /// Returns the total quantity of all assets under control of this
-    /// fund, whether they're loaned out to a strategy, or currently held in
-    /// the fund.
-    function totalAssets() public view returns (uint256) {
-        return assets.balanceOf(address(this)) + totalDebt;
     }
 
     /// Assets can be lost because exists time difference between 
