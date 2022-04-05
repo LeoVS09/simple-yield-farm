@@ -34,11 +34,11 @@ abstract contract BaseStrategy is Initializable, IBorrower, SimpleVault {
     }
 
     /// Contract of token which this strategy want to borrow and increase
-    function want() external view returns (address) {
+    function want() external view override returns (address) {
         return address(assets);
     }
     
-    function lender() external view returns (address) {
+    function lender() external view override returns (address) {
         return address(_lender);
     }
 }

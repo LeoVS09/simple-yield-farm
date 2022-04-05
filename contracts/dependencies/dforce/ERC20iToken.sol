@@ -1,13 +1,15 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// Implementation at https://www.bscscan.com/address/0x2a29ecb29781214ec774544023c8fc19102786b8#code
-interface iETH {
+// Implementation at https://etherscan.io/address/0x1a5de76ef2261fc6cb281f8a447bef4e48ef5d25#code
+/// Interface of DForce IToken wrapper for ERC20 tokens, like USDT
+interface ERC20iToken {
     /**
      * @dev Caller deposits assets into the market and `_recipient` receives iToken in exchange.
      * @param _recipient The account that would receive the iToken.
+     * @param _mintAmount The amount of the underlying token to deposit.
      */
-    function mint(address _recipient) external payable;
+    function mint(address _recipient, uint256 _mintAmount) external;
     /**
      * @dev Get cash balance of this iToken in the underlying token.
      */

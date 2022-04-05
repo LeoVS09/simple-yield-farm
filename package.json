@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "hardhat test test/EquityFund.test.ts",
+    "test": "hardhat test test/ERC20DforceStrategy.test.ts --fulltrace",
     "dev": "npm-watch"
   },
   "repository": {

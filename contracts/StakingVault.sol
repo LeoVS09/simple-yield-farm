@@ -1,7 +1,6 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./dependencies/iETH.sol";
 import "./EquityFund.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Lender.sol";

@@ -4,16 +4,13 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "./dependencies/iETH.sol";
+import "./dependencies/dforce/ERC20iToken.sol";
 import "./IBorrower.sol";
 import "./BaseStrategy.sol";
 
-contract EthStrategy is Initializable, IBorrower, BaseStrategy, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// Contract which allow stake token
-    iETH internal stake;
-
-    /// Base of the iETH staking, used for rounded calcualtions
-    uint256 private constant BASE = 10**18;
+    ERC20iToken internal stake;
 
     event Borrowed(uint256 amount);
     event PutInStake(uint256 amount);
@@ -21,18 +18,18 @@ contract EthStrategy is Initializable, IBorrower, BaseStrategy, OwnableUpgradeab
     event ReturnToLender(uint256 amount);
 
     /// name - name of the token
-    /// wantAddress - address of ERC20 token contract which will be stored in fund
+    /// wantTokenAddress - address of ERC20 token contract which will be stored in fund
     /// stakingAddress - address of token where possible stake token
     function initialize(
         string memory _name,
-        address wantAddress,
+        address wantTokenAddress,
         address lenderAddress,
         address stakingAddress
     ) initializer public {
         __Ownable_init();
-        __BaseStrategy__init(_name, wantAddress, lenderAddress);
+        __BaseStrategy__init(_name, wantTokenAddress, lenderAddress);
 
-        stake = iETH(stakingAddress);
+        stake = ERC20iToken(stakingAddress);
     }
 
     /// Make all work which need for invest or reinvest tokens
@@ -62,13 +59,15 @@ contract EthStrategy is Initializable, IBorrower, BaseStrategy, OwnableUpgradeab
     }
 
     function _putInStake(uint256 amount) internal {
-        stake.mint{ value: amount }(address(this));
+        _increaseAssetsAllowance(address(stake), amount);
+
+        stake.mint(address(this), amount);
 
         emit PutInStake(amount);
     }
 
     /// Try to widthdraw given amount and return loss
-    function withdraw(uint256 amount) external onlyLender nonReentrant returns (uint256) {
+    function withdraw(uint256 amount) external override onlyLender nonReentrant returns (uint256) {
         require(amount <= totalAssets(), "Not have enough money to withdraw");
 
         if (amount >= _availableAssets()) {
@@ -100,7 +99,7 @@ contract EthStrategy is Initializable, IBorrower, BaseStrategy, OwnableUpgradeab
     }
 
     /// Estimated total assets which currently hold in strategy and in stake
-    function totalAssets() public view returns (uint256) {
+    function totalAssets() public view override returns (uint256) {
         return _availableAssets() + balanceOfAssetsInStake();
     }
 

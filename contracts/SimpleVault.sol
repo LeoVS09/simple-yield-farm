@@ -35,6 +35,14 @@ contract SimpleVault is Initializable {
         assets.safeTransfer(to, value);
     }
 
+    function _increaseAssetsAllowance(address spender, uint256 value) internal {
+        assets.safeIncreaseAllowance(spender, value);
+    }
+
+    function _decreaseAssetsAllowance(address spender, uint256 value) internal {
+        assets.safeDecreaseAllowance(spender, value);
+    }
+
 
     /// Assets which are directly available for fund
     function _availableAssets() internal view returns (uint256) {

@@ -34,7 +34,7 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
     }
 
     /// Strategy can requests some credit which then must return
-    function borrow(uint256 amount) public onlyStrategy nonReentrant {
+    function borrow(uint256 amount) public override onlyStrategy nonReentrant {
         require(amount > 0, "Borrowing amount must be positive");
         require(amount <= _availableAssets(), "Requested more then available for a borrowing");
 
@@ -45,7 +45,7 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
     }
 
     /// Estimate how much strategy can borrow from this Lender.
-    function creditAvailable() external onlyStrategy view returns (uint256) {
+    function creditAvailable() external override onlyStrategy view returns (uint256) {
         // TODO: When will be borrow ratio need calculate based on it
         return _availableAssets();
     } 
