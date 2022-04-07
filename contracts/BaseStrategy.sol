@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "./IBorrower.sol";
 import "./ILender.sol";
 import "./SimpleVault.sol";
 
-abstract contract BaseStrategy is Initializable, IBorrower, SimpleVault {
+abstract contract BaseStrategy is Initializable, IBorrower, OwnableUpgradeable, SimpleVault {
 
     ILender public _lender;
 
@@ -23,6 +23,7 @@ abstract contract BaseStrategy is Initializable, IBorrower, SimpleVault {
         address wantAddress,
         address lenderAddress
     ) initializer public {
+        __Ownable_init();
         __SimpleVault_init(wantAddress);
         name = _name;
         _lender = ILender(lenderAddress);
@@ -40,5 +41,9 @@ abstract contract BaseStrategy is Initializable, IBorrower, SimpleVault {
     
     function lender() external view override returns (address) {
         return address(_lender);
+    }
+
+    function setLender(address lender) external onlyOwner {
+        _lender = ILender(lender);
     }
 }

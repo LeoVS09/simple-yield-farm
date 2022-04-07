@@ -2,13 +2,13 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./dependencies/dforce/ERC20iToken.sol";
 import "./IBorrower.sol";
 import "./BaseStrategy.sol";
 
-contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, ReentrancyGuardUpgradeable {
     /// Contract which allow stake token
     ERC20iToken internal stake;
 
@@ -26,7 +26,6 @@ contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, OwnableU
         address lenderAddress,
         address stakingAddress
     ) initializer public {
-        __Ownable_init();
         __BaseStrategy__init(_name, wantTokenAddress, lenderAddress);
 
         stake = ERC20iToken(stakingAddress);

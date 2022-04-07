@@ -4,9 +4,10 @@ import { expect, use } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { FakeContract, smock } from "@defi-wonderland/smock";
 // eslint-disable-next-line node/no-missing-import
-import { ERC20DforceStrategy, Lender } from "../typechain";
+import { ERC20DforceStrategy, Lender, TestLender } from "../typechain";
 import { USDTABI, IUSDT } from "./ERC20";
 import { BigNumber } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 use(smock.matchers);
 
@@ -25,6 +26,7 @@ const { formatEther: fromEth, parseEther: toEth } = ethers.utils;
 describe("ERC20DforceStrategy", function () {
   let contract: ERC20DforceStrategy;
   let lender: FakeContract<Lender>;
+  let testLender: TestLender;
   let USDT: FakeContract<IUSDT>;
 
   before(async () => {
@@ -46,11 +48,15 @@ describe("ERC20DforceStrategy", function () {
       ERC20DforceStrategyFactory
     )) as ERC20DforceStrategy;
 
+    const testLenderFactory = await ethers.getContractFactory("TestLender");
+    testLender = await testLenderFactory.deploy();
+
     console.log("addresses\n", {
       contract: contract.address,
       USDT: USDT.address,
       lender: lender.address,
       iUSDT: iUSDT_address,
+      testLender: testLender.address,
     });
   });
 
@@ -65,7 +71,7 @@ describe("ERC20DforceStrategy", function () {
     USDT.transferFrom.reverts();
   });
 
-  it("borrow and stake tokens", async function () {
+  it("should borrow and stake tokens", async function () {
     lender.creditAvailable.returns(BigNumber.from(100000));
     lender.borrow.whenCalledWith(BigNumber.from(100000)).returns();
 
@@ -110,6 +116,45 @@ describe("ERC20DforceStrategy", function () {
     expect(USDT.transferFrom).to.have.been.calledWith(
       contract.address,
       iUSDT_address,
+      BigNumber.from(100000)
+    );
+  });
+
+  it("should redeem and widthdraw tokens", async () => {
+    let calledByContract = 0;
+
+    USDT.balanceOf.returns(([addr]: Array<string>) => {
+      console.log("balanceOf", addr);
+      if (addr === contract.address) {
+        calledByContract++;
+        if (calledByContract <= 5) {
+          return BigNumber.from(0);
+        }
+
+        return BigNumber.from(100000);
+      }
+
+      if (addr !== iUSDT_address) {
+        return toEth("0");
+      }
+
+      return BigNumber.from(596551011229).add(BigNumber.from(100000));
+    });
+
+    USDT.transferFrom
+      .whenCalledWith(iUSDT_address, contract.address, BigNumber.from(100000))
+      .returns(true);
+
+    USDT.transfer
+      .whenCalledWith(testLender.address, BigNumber.from(100000))
+      .returns(true);
+
+    await contract.setLender(testLender.address);
+
+    await testLender.withdraw(contract.address, BigNumber.from(100000));
+
+    expect(USDT.transfer).to.have.been.calledWith(
+      testLender.address,
       BigNumber.from(100000)
     );
   });
