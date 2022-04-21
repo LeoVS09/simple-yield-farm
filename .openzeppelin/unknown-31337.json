@@ -1,8 +1,8 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xefAB0Beb0A557E452b398035eA964948c750b2Fd",
-    "txHash": "0xe637814d83a900ce3308091d8e1e7a5d1204b9397fb03870363ec7c2d277ebe6"
+    "address": "0x70bDA08DBe07363968e9EE53d899dFE48560605B",
+    "txHash": "0x1486c881164271dce4d7167796ca113e948b23d0403bc7bf0013a29458095013"
   },
   "proxies": [
     {
@@ -23,6 +23,11 @@
     {
       "address": "0xaca81583840B1bf2dDF6CDe824ada250C1936B4D",
       "txHash": "0x529cbe977143e06be7fd314c55cb261e48a6ef528cdf297923db70fb36686b48",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x26B862f640357268Bd2d9E95bc81553a2Aa81D7E",
+      "txHash": "0x2432b398a81aed091f5a35fe6d1ea903ac3f36255a53fc28297d8a4f0a581bc5",
       "kind": "transparent"
     }
   ],
@@ -517,9 +522,9 @@
         }
       }
     },
-    "e34abd5e52fdf2527dacb95eed96923e091f67d8ea3cd0f2812d32d6a3b5b12e": {
-      "address": "0x74Cf9087AD26D541930BaC724B7ab21bA8F00a27",
-      "txHash": "0x02e863b12f98ca42c08808c94dd13e0b01fc6d0d79b314cc2610d715f912c54c",
+    "bbd0654bc9d7d4550cb53c29a251c6266bc85d4a7d2d69e03f7f3b23fdf68bff": {
+      "address": "0xaca81583840B1bf2dDF6CDe824ada250C1936B4D",
+      "txHash": "0xd6895c49cdb2cc99581a658bd6f00ce7b59c0facd83834b5d8766ff6f3a425c8",
       "layout": {
         "storage": [
           {
@@ -537,6 +542,14 @@
             "type": "t_bool",
             "contract": "Initializable",
             "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "assets",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IERC20Upgradeable)947",
+            "contract": "SimpleVault",
+            "src": "contracts/SimpleVault.sol:17"
           },
           {
             "label": "__gap",
@@ -563,33 +576,9 @@
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
           },
           {
-            "label": "assets",
-            "offset": 0,
-            "slot": "101",
-            "type": "t_contract(IERC20Upgradeable)334",
-            "contract": "SimpleVault",
-            "src": "contracts/SimpleVault.sol:17"
-          },
-          {
-            "label": "_lender",
-            "offset": 0,
-            "slot": "102",
-            "type": "t_contract(ILender)1260",
-            "contract": "BaseStrategy",
-            "src": "contracts/BaseStrategy.sol:14"
-          },
-          {
-            "label": "name",
-            "offset": 0,
-            "slot": "103",
-            "type": "t_string_storage",
-            "contract": "BaseStrategy",
-            "src": "contracts/BaseStrategy.sol:16"
-          },
-          {
             "label": "_status",
             "offset": 0,
-            "slot": "104",
+            "slot": "101",
             "type": "t_uint256",
             "contract": "ReentrancyGuardUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
@@ -597,18 +586,26 @@
           {
             "label": "__gap",
             "offset": 0,
-            "slot": "105",
+            "slot": "102",
             "type": "t_array(t_uint256)49_storage",
             "contract": "ReentrancyGuardUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
           },
           {
-            "label": "stake",
+            "label": "totalDebt",
             "offset": 0,
-            "slot": "154",
-            "type": "t_contract(ERC20iToken)1426",
-            "contract": "ERC20DforceStrategy",
-            "src": "contracts/ERC20DforceStrategy.sol:13"
+            "slot": "151",
+            "type": "t_uint256",
+            "contract": "Lender",
+            "src": "contracts/Lender.sol:14"
+          },
+          {
+            "label": "strategy",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_contract(IBorrower)1926",
+            "contract": "Lender",
+            "src": "contracts/Lender.sol:16"
           }
         ],
         "types": {
@@ -628,21 +625,13 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(ERC20iToken)1426": {
-            "label": "contract ERC20iToken",
+          "t_contract(IBorrower)1926": {
+            "label": "contract IBorrower",
             "numberOfBytes": "20"
           },
-          "t_contract(IERC20Upgradeable)334": {
+          "t_contract(IERC20Upgradeable)947": {
             "label": "contract IERC20Upgradeable",
             "numberOfBytes": "20"
-          },
-          "t_contract(ILender)1260": {
-            "label": "contract ILender",
-            "numberOfBytes": "20"
-          },
-          "t_string_storage": {
-            "label": "string",
-            "numberOfBytes": "32"
           },
           "t_uint256": {
             "label": "uint256",

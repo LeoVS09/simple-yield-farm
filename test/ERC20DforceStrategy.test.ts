@@ -7,7 +7,6 @@ import { FakeContract, smock } from "@defi-wonderland/smock";
 import { ERC20DforceStrategy, Lender, TestLender } from "../typechain";
 import { USDTABI, IUSDT } from "./ERC20";
 import { BigNumber } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 use(smock.matchers);
 

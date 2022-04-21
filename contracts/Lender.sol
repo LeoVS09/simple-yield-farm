@@ -22,15 +22,19 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
     }
 
     function __Lender_init(address strategyAddress) initializer public {
-        strategy = IBorrower(strategyAddress);
-
-        // TODO: check also lender is correct when adding contract
-        require(strategy.want() == address(assets), "Strategy do not want vault assets");
+        setStrategy(strategyAddress);
     }
 
     modifier onlyStrategy() {
         require(address(strategy) == _msgSender(), "Lender: caller is not a strategy");
         _;
+    }
+
+    function setStrategy(address strategyAddress) public onlyOwner {
+        strategy = IBorrower(strategyAddress);
+
+        // TODO: check also lender is correct when adding strategy
+        require(strategy.want() == address(assets), "Strategy do not want vault assets");
     }
 
     /// Strategy can requests some credit which then must return
@@ -71,7 +75,7 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
     /// fund, whether they're loaned out to a strategy, or currently held in
     /// the fund.
     function totalAssets() public view returns (uint256) {
-        return assets.balanceOf(address(this)) + totalDebt;
+        return _availableAssets() + totalDebt;
     }
 
 
