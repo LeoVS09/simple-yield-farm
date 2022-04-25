@@ -25,6 +25,11 @@ contract SimpleVault is Initializable {
         assets = IERC20Upgradeable(storageTokenAddress);
     }
 
+    /// Transfer assets from given address to this contract
+    function _receiveAssetsFrom(address from, uint256 value) internal {
+        _transferAssetsFrom(from, address(this), value);
+    }
+
     /// Safely transfer assets token from given address to sender
     function _transferAssetsFrom(address from, address to, uint256 value) internal {
         assets.safeTransferFrom(from, to, value);

@@ -47,7 +47,7 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         uint256 shares = _issueShares(amount, msg.sender);
 
         // Transfer tokens from sender to this contract
-        _transferAssetsFrom(msg.sender, address(this), amount);
+        _receiveAssetsFrom(msg.sender, amount);
 
         emit Deposit(amount, shares, msg.sender);
         return shares;
@@ -70,8 +70,8 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         // Reddem shares for some amount of tokens
         (uint256 shares, uint256 amount) = _redeemShares(maxShares, maxLoss);
 
-        // Withdraw remaining balance to msg.sender (minus fee)
-        _transferAssetsFrom(address(this), msg.sender, amount);
+        // Send remaining balance to msg.sender (minus fee)
+        _transferAssets(msg.sender, amount);
 
         emit Withdraw(msg.sender, maxShares, maxLoss, shares, amount);
         return amount;
