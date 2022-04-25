@@ -66,10 +66,12 @@ describe("Lender", () => {
   beforeEach(async () => {
     USDT.balanceOf.reset();
     USDT.transfer.reset();
+    strategy.totalAssets.reset();
   });
 
-  it("should return total assets", async () => {
+  it("should return total assets when nothing is borrowed", async () => {
     USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("10"));
+    strategy.totalAssets.returns(toEth("0"));
 
     expectEth(await contract.totalAssets()).to.equal("10.0");
     expect(USDT.balanceOf).to.have.been.calledWith(contract.address);
@@ -87,9 +89,14 @@ describe("Lender", () => {
     );
 
     // Must track lended deposites + USDT.balanceOf retuns 10
-    expectEth(await contract.totalAssets()).to.equal("13.0");
+    expectEth(await contract.totalDebt()).to.equal("3.0");
+  });
 
+  it("should return total assets when strategy have tokens", async () => {
     USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("7"));
-    expectEth(await contract.totalAssets()).to.equal("10.0");
+    strategy.totalAssets.returns(toEth("10"));
+
+    expectEth(await contract.totalAssets()).to.equal("17.0");
+    expect(USDT.balanceOf).to.have.been.calledWith(contract.address);
   });
 });

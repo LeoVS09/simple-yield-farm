@@ -5,6 +5,9 @@ import "./EquityFund.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Lender.sol";
 
+/// Simple staking vault, which allow store tokens in vault
+/// Tokens can be borrowed by strategy and returned with percents
+/// And vault allow widthdraw tokens in proportion of shares which user have
 contract StakingVault is Initializable, EquityFund, Lender {
 
     uint256 constant DEGRADATION_COEFFICIENT = 10 ** 18;
@@ -19,9 +22,11 @@ contract StakingVault is Initializable, EquityFund, Lender {
         address storageTokenAddress, 
         address strategyAddress
     ) initializer public {
-        EquityFund.initialize(name, symbol, storageTokenAddress);
+        __EquityFund_init(name, symbol, storageTokenAddress);
         __Lender_init(strategyAddress);
     }
+
+    event Log(uint256 value, uint256 totalLoss, uint256 shares, uint256 maxShares);
 
     /// Redeem up to `maxShares` for assets, and return `redeemd shares, assets ammount`.
     /// Allow `maxLoss`
@@ -44,35 +49,25 @@ contract StakingVault is Initializable, EquityFund, Lender {
                 // Burn shares that corresponds to what Vault has on-hand,
                 // including the losses that were incurred above during withdrawals
                 // TODO: use safe math
-                shares = _estimateSharesForAmount(value + totalLoss);
+                shares = _estimateShares(value + totalLoss);
+                emit Log(value, totalLoss, shares, maxShares);
+                
                 // Check current shares must be lower than maxShare.
                 // This implies that large withdrawals within certain parameter ranges might fail.
-                require(shares <= maxShares);
+                require(shares <= maxShares, "Shares which will be burn with losses is bigger than given maxShares");
             }
 
             // This loss protection is put in place to revert if losses from
             // withdrawing are more than what is considered acceptable
             // TODO: use safe math
             // TODO: Maybe use rounding calculation
-            require(totalLoss <= (value + totalLoss) * maxLoss / MAX_BASIS_POINTS);
+            require(totalLoss <= (value + totalLoss) * maxLoss / MAX_BASIS_POINTS, "Total loss bigger than acceptable maxLoss");
         }
 
         // Burn shares (full value of what is being withdrawn)
         _burn(msg.sender, shares);
 
         return (shares, value);
-    }
-
-
-    /// Determines how many shares `amount` of token would receive.
-    // Very strange function, not sure why we cannot use _estimateShares directly
-    //  but use this logic just in case
-    function _estimateSharesForAmount(uint256 amount) internal virtual view returns (uint256) {
-        if (_expectedAssets() == 0 || totalSupply() == 0) {
-            return 0;
-        }
-
-        return _estimateShares(amount);
     }
 
     /// Calculate how much assets currently have fund 
@@ -82,9 +77,13 @@ contract StakingVault is Initializable, EquityFund, Lender {
     }
 
     /// Assets can be lost because exists time difference between 
-    /// moment when assets was borrowed and moment when current assets of borrowers was updated. 
+    /// moment when assets was borrowed 
+    /// and moment when current assets of borrowers was updated. 
     function _probablyLostAssets() internal view returns (uint256) {
-        // TODO: expected lost assets since last update of assets
+        // TODO: Currently Lender contract directly request current assets in strategy
+        //  Need make reports of assets asynchronously and 
+        //  calculate probably lost assets between reports
+        //  Maybe need move this calcualtions to strategy
         return 0;
     }
 

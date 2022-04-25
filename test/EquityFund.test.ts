@@ -32,11 +32,6 @@ describe("EquityFund", function () {
       })
     );
 
-    WETH.balanceOf.returns(toEth("10"));
-    // Check smock working properly
-    // If fail at this place, just restart test
-    console.log("WETH.balanceOf", await WETH.balanceOf(ownerAddressses[0]));
-
     const EquityFundFactory = await ethers.getContractFactory("EquityFund");
     const instance = await upgrades.deployProxy(EquityFundFactory, [
       "Equity Fund",
@@ -47,6 +42,12 @@ describe("EquityFund", function () {
       instance.address,
       EquityFundFactory
     )) as EquityFund;
+
+    console.log("addresses\n", {
+      owner: ownerAddressses[0],
+      contract: contract.address,
+      WETH: WETH.address,
+    });
   });
 
   beforeEach(() => {
@@ -68,6 +69,7 @@ describe("EquityFund", function () {
 
       await contract.connect(owners[0]).deposit(toEth("10"));
 
+      // When vault not have shares it must not check assets balance
       // eslint-disable-next-line no-unused-expressions
       expect(WETH.balanceOf).to.not.have.been.called;
       expect(WETH.transferFrom).to.have.been.calledWith(

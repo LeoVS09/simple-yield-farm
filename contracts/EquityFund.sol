@@ -10,6 +10,9 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./SimpleVault.sol";
 
+/// Implementation of abstract equity fund
+/// It allow users to deposit tokens in exchange of shares of this fund
+/// And allow exchange shares to widthdraw tokens stored in fund
 contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// 100% or 10k basis points for loss
@@ -27,11 +30,14 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     /// @param name - name of the token
     /// @param symbol - token symbol
     function initialize(string memory name, string memory symbol, address storageTokenAddress) initializer public {
+        __EquityFund_init(name, symbol, storageTokenAddress);
+    }
+
+    function __EquityFund_init(string memory name, string memory symbol, address storageTokenAddress) internal {
         __ERC20_init(name, symbol);
         __ERC20Burnable_init();
         __Ownable_init();
         __SimpleVault_init(storageTokenAddress);
-
     }
 
     /// Add deposit to fund storage and issues shares for a recepient
@@ -100,9 +106,9 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     /// Estimate how much shares should be issued if given amount will be added to fund
     function _estimateShares(uint256 amount) internal virtual view returns (uint256) {
         require(amount > 0, "For issue shares amount must be non-zero");
-        uint256 _totalSupply = totalSupply();
+        uint256 totalShares = totalSupply();
 
-        if (_totalSupply == 0) {
+        if (totalShares == 0) {
             // No existing shares, so mint 1:1
             return amount;
         }
@@ -111,7 +117,7 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         // if sqrt(totalSupply()) > 1e39, this could potentially revert
         // TODO: use safe math
         // TODO: use rounding calculation
-        uint256 shares = amount * _totalSupply / _expectedAssets();
+        uint256 shares = amount * totalShares / _expectedAssets();
         require(shares > 0, "Incorrect calcualtion of shares during issing"); // rounding calcualtion must fix it
 
         return shares;
@@ -121,14 +127,14 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     function _estimateShareValue(uint256 shares) internal virtual view returns (uint256) {
         require(shares > 0, "For estimate value shares amount must be non-zero");
         
-        uint256 _totalSupply = totalSupply();
-        require(shares <= _totalSupply, "Cannot calcualte value for not existing shares");
+        uint256 totalShares = totalSupply();
+        require(shares <= totalShares, "Cannot calcualte value for not existing shares");
         
         // Determines the current value of `shares`.
         // if sqrt(_expectedAssets()) >>> 1e39, this could potentially revert
         // TODO: use safe math
         // TODO: use rounding calculation
-        uint256 value = shares * _expectedAssets() / _totalSupply;
+        uint256 value = shares * _expectedAssets() / totalShares;
         require(shares > 0, "Incorrect calcualtion of share's value"); // rounding calcualtion must fix it
 
         return value;

@@ -8,6 +8,10 @@ import "./SimpleVault.sol";
 import "./IBorrower.sol";
 import "./ILender.sol";
 
+/// Implementation of abstract lender contract
+/// It allow to borrow tokens from this contract by only one whitelabeled strategy
+/// And also have internal method,
+/// which can be used in inherited contract to widthdraw tokens from strategy
 contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// Amount of tokens that all strategies have borrowed.
@@ -15,13 +19,16 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
 
     IBorrower public strategy;
 
-    function initialize(address strategyAddress, address storageTokenAddress) initializer public{
+    /// Emit when strategy borrow some assets
+    event Borrowed(address strategy, uint256 amount, uint256 strategyTotalAssets, uint256 totalDebt);
+
+    function initialize(address strategyAddress, address storageTokenAddress) initializer public {
         __Ownable_init();
         __SimpleVault_init(storageTokenAddress);
         __Lender_init(strategyAddress);
     }
 
-    function __Lender_init(address strategyAddress) initializer public {
+    function __Lender_init(address strategyAddress) internal {
         setStrategy(strategyAddress);
     }
 
@@ -46,6 +53,8 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
         totalDebt += amount;
       
         _transferAssets(msg.sender, amount);
+
+        emit Borrowed(msg.sender, amount, IBorrower(msg.sender).totalAssets(), totalDebt);
     }
 
     /// Estimate how much strategy can borrow from this Lender.
@@ -75,7 +84,7 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
     /// fund, whether they're loaned out to a strategy, or currently held in
     /// the fund.
     function totalAssets() public view returns (uint256) {
-        return _availableAssets() + totalDebt;
+        return _availableAssets() + strategy.totalAssets();
     }
 
 

@@ -2,7 +2,7 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F",
-    "txHash": "0xa07c9f7f9110121e505d13c02d0ad6b711a7609004b91dfd09c59c2c421c9858"
+    "txHash": "0x14f7454edf0fb2f97c2f99d167c2596173c840500d3baf0ef17524842b28cd44"
   },
   "proxies": [
     {
@@ -32,7 +32,7 @@
     },
     {
       "address": "0xddE78e6202518FF4936b5302cC2891ec180E8bFf",
-      "txHash": "0x21f575c8029102f574c21d9a968c24ac2fefda98105379984595f3f518cc5c85",
+      "txHash": "0x599f601bca42d4913faa3496e3e0732fce9e45293c8893a0bad60b6a2668c290",
       "kind": "transparent"
     }
   ],
@@ -645,9 +645,9 @@
         }
       }
     },
-    "97170397f4bf73a4d29718250e0d0c943bbfbec926728086ae1d8401d7c7280b": {
+    "cba0acca2a0a872f50e3c9b3d4ce5f133dd9c77a849b5658c9d79c7a2147f8c6": {
       "address": "0xA56F946D6398Dd7d9D4D9B337Cf9E0F68982ca5B",
-      "txHash": "0xd31feebbd4fbb9f34b4e9bd2d6c6551d2a099f8f7a0e407ff22eaa86d602b345",
+      "txHash": "0x4112190e32441b8c9c6bfdf0edc569740b2ddb132d07332a4749d4156612665d",
       "layout": {
         "storage": [
           {
@@ -769,6 +769,22 @@
             "type": "t_array(t_uint256)49_storage",
             "contract": "ReentrancyGuardUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "label": "totalDebt",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_uint256",
+            "contract": "Lender",
+            "src": "contracts/Lender.sol:18"
+          },
+          {
+            "label": "strategy",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_contract(IBorrower)1935",
+            "contract": "Lender",
+            "src": "contracts/Lender.sol:20"
           }
         ],
         "types": {
@@ -791,6 +807,10 @@
           "t_bool": {
             "label": "bool",
             "numberOfBytes": "1"
+          },
+          "t_contract(IBorrower)1935": {
+            "label": "contract IBorrower",
+            "numberOfBytes": "20"
           },
           "t_contract(IERC20Upgradeable)947": {
             "label": "contract IERC20Upgradeable",
