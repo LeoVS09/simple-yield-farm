@@ -1,19 +1,30 @@
-# Stacking Delegator
+# Simple Yield Farm
 
-dApp for delegating cryptocurrencies to Validator
+PoC of simple earning yield farm implementation. 
+Protocol consist of multiple contracts, which together works as basic implementation of yield farming for ERC20 based tokens.
+Developlet with extensability in mind and as simple as possible.
 
-## Requirements
+## Contracts
+
+* SimpleVault - abstract vault contract, can store some ERC20 token as assets. Give minimal implementation for safe trasfer of assets
+* EquityFund - implementation of equity fund based on SimpleVault. Allow anyone deposit tokens in exchange of shares and withdraw tokens in exchange of shares.
+* Lender - implement ILender interface and based on SimpleVault. Allow whitelabeled strategy to borrow assets. Can return assets from strategy when required to. Expect possible losses when try to withdraw tokens from strategy. Expect strategy to imeplement IBorrower interface.
+* ERC20DforceStrategy - investing strategy which implement IBorrower interface. Can borrow money from ILender and return assets (with percents) to Lender when he requesed. Invest borrowed tokens to [dForce](https://dforce.network/) lending protocol.
+* InvestmentVault - merge EquityFund and Lender together. In simple words core earning farm contract. Allow deposit tokens, which can be borrowed by strategy. Allow withdraw tokens, if not have enough availble will return tokens from strategy.
+
+
+## Development
+
+### Requirements
 
 * [Hardhat](https://hardhat.org/getting-started/#installation) - development environment to compile, deploy, test, and debug your Ethereum software
 
-## First Start Guide
+### First Start Guide
 
 * Install requirements
 * Instal dependencies by `npm i`
 * Compile contracts by `npx hardhat compile`
 * Run tests `npx hardhat test`
-
-## Development
 
 ### Commands
 
