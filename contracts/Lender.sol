@@ -63,6 +63,8 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
         return _availableAssets();
     } 
 
+    event ReturnAssets(uint256 targetBalance, uint256 amountNeed, uint256 loss);
+
     /// Hook which must return assets to lender if it possible
     /// @param targetBalance - balance which fund must have at the end of hook executuin
     /// @return totalLoss - loss of all performed actions
@@ -77,7 +79,10 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
             totalDebt -= amountNeed;
         }
 
-        return strategy.withdraw(amountNeed);
+        uint256 loss = strategy.withdraw(amountNeed);
+        emit ReturnAssets(targetBalance, amountNeed, loss);
+
+        return loss;
     }
 
     /// Returns the total quantity of all assets under control of this

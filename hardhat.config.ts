@@ -34,6 +34,7 @@ const binanceSmartChainFork = {
 /** Etherium Mainnet */
 const etheriumFork = {
   url: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+  // blockNumber: 12964900, // Apr-07-2021
 };
 
 const config: HardhatUserConfig = {
@@ -55,6 +56,8 @@ const config: HardhatUserConfig = {
       accounts: {
         accountsBalance: "1000000000000000000000000", // 1 mil ether,
       },
+      // gas: 30000000,
+      // gasPrice: 30582625255,
     },
   },
   gasReporter: {

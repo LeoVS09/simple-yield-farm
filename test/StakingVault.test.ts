@@ -1,20 +1,19 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { FakeContract, smock } from "@defi-wonderland/smock";
+import { FakeContract, smock, MockContract } from "@defi-wonderland/smock";
 import { expect, use } from "chai";
 import { BigNumberish, BigNumber } from "ethers";
 import { ethers, upgrades } from "hardhat";
 // eslint-disable-next-line node/no-missing-import
-import { StakingVault, ERC20DforceStrategy } from "../typechain";
-import { USDTABI, IUSDT } from "./ERC20";
+import { StakingVault, TestStrategy, USDT } from "../typechain";
 
 use(smock.matchers);
 
 // Etherium Mainnet
 // const iETH_address = "0x5ACD75f21659a59fFaB9AEBAf350351a8bfaAbc0";
 const iUSDT_address = "0x1180c114f7fAdCB6957670432a3Cf8Ef08Ab5354";
-const USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+// const USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
 const { formatEther: fromEth, parseEther: toEth } = ethers.utils;
 
@@ -24,8 +23,8 @@ describe("StakingVault", function () {
   let contract: StakingVault;
   let owners: Array<SignerWithAddress>;
   let ownerAddressses: Array<string>;
-  let USDT: FakeContract<IUSDT>;
-  let strategy: FakeContract<ERC20DforceStrategy>;
+  let USDT: USDT;
+  let strategy: TestStrategy;
 
   before(async () => {
     owners = await ethers.getSigners();
@@ -35,13 +34,11 @@ describe("StakingVault", function () {
       })
     );
 
-    strategy = await smock.fake("ERC20DforceStrategy", {
-      address: ownerAddressses[1],
-    });
+    const usdtFactory = await ethers.getContractFactory("USDT");
+    USDT = await usdtFactory.deploy();
 
-    USDT = await smock.fake<IUSDT>(USDTABI, { address: USDT_address });
-
-    strategy.want.returns(USDT.address);
+    const strategyFactory = await ethers.getContractFactory("TestStrategy");
+    strategy = await strategyFactory.deploy(USDT.address);
 
     const StakingVaultFactory = await ethers.getContractFactory("StakingVault");
     const instance = await upgrades.deployProxy(
@@ -57,6 +54,8 @@ describe("StakingVault", function () {
       StakingVaultFactory
     )) as StakingVault;
 
+    strategy.setLender(contract.address);
+
     console.log("addresses\n", {
       owner: ownerAddressses[0],
       strategy: strategy.address,
@@ -67,110 +66,84 @@ describe("StakingVault", function () {
   });
 
   beforeEach(() => {
-    USDT.balanceOf.reset();
-    USDT.balanceOf.reverts();
-    USDT.transferFrom.reset();
-    USDT.transferFrom.reverts();
-    USDT.transfer.reset();
-    USDT.transfer.reverts();
-    strategy.totalAssets.reset();
-    strategy.withdraw.reset();
+    strategy.setLoss(toEth("0"));
   });
 
   it("Should deposit tokens", async function () {
-    const ownerAddress = ownerAddressses[0];
-    USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("0"));
-    strategy.totalAssets.returns(toEth("0"));
-    USDT.transferFrom
-      .whenCalledWith(ownerAddress, contract.address, toEth("10"))
-      .returns(true);
+    const owner = owners[0];
+    const ownerAddress = await owner.getAddress();
+    await USDT.mint(ownerAddress, toEth("10"));
+    await USDT.connect(owner).approve(contract.address, toEth("10"));
 
-    await contract.connect(owners[0]).deposit(toEth("10"));
+    await contract.connect(owner).deposit(toEth("10"));
 
     // When vault not have shares it must not check assets balance
-    expect(USDT.balanceOf).to.not.have.been.called;
-    expect(strategy.totalAssets).to.not.have.been.called;
-    expect(USDT.transferFrom).to.have.been.calledWith(
-      ownerAddress,
-      contract.address,
-      toEth("10")
-    );
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("0.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("10.0");
     expectEth(await contract.totalSupply()).to.equal("10.0");
     expectEth(await contract.balanceOf(ownerAddress)).to.equal("10.0");
   });
 
   it("Should deposit second owner tokens", async function () {
-    const ownerAddress = ownerAddressses[1];
-    USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("10"));
-    strategy.totalAssets.returns(toEth("0"));
-    USDT.transferFrom
-      .whenCalledWith(ownerAddress, contract.address, toEth("5"))
-      .returns(true);
+    const owner = owners[1];
+    const ownerAddress = await owner.getAddress();
+    await USDT.mint(ownerAddress, toEth("10"));
+    await USDT.connect(owner).approve(contract.address, toEth("5"));
 
-    await contract.connect(owners[1]).deposit(toEth("5"));
+    await contract.connect(owner).deposit(toEth("5"));
 
-    expect(USDT.balanceOf).to.have.been.calledWith(contract.address);
-    expect(strategy.totalAssets).to.have.been.called;
-    expect(USDT.transferFrom).to.have.been.calledWith(
-      ownerAddress,
-      contract.address,
-      toEth("5")
-    );
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("5.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("15.0");
     expectEth(await contract.totalSupply()).to.equal("15.0");
     expectEth(await contract.balanceOf(ownerAddress)).to.equal("5.0");
   });
 
   it("should borrow assets for strategy", async () => {
-    USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("15"));
-    USDT.transfer.whenCalledWith(ownerAddressses[1], toEth("3")).returns(true);
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("15.0");
 
-    await contract.connect(owners[1]).borrow(toEth("3"));
+    // will call StackingVault.borrow under the hood
+    await strategy.borrow(toEth("3"));
 
-    expect(USDT.transfer).to.have.been.calledWith(
-      ownerAddressses[1],
-      toEth("3")
-    );
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("3.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("12.0");
 
     // Must track lended deposites + USDT.balanceOf retuns 10
     expectEth(await contract.totalDebt()).to.equal("3.0");
   });
 
   it("Should returns tokens to owner proportionally to increased assets", async function () {
-    const ownerAddress = ownerAddressses[0];
-    USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("12"));
-    strategy.totalAssets.returns(toEth("13"));
-    USDT.transfer.whenCalledWith(ownerAddress, toEth("10")).returns(true);
+    const owner = owners[0];
+    const ownerAddress = await owner.getAddress();
+
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("0.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("12.0");
+
+    await USDT.mint(strategy.address, toEth("10"));
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("13.0");
 
     // shares at this moment must be 15 and total assets at 25
     expectEth(await contract.totalSupply()).to.equal("15.0");
     expectEth(await contract.totalAssets()).to.equal("25.0");
 
     // withdraw 6 shares = 6 shares * 25 Assets / 15 total shares = 10 assets
-    await contract.connect(owners[0]).withdraw(toEth("6"), 0);
+    await contract.connect(owner).withdraw(toEth("6"), 0);
 
-    expect(USDT.balanceOf).to.have.been.calledWith(contract.address);
-    expect(USDT.balanceOf).to.have.been.callCount(5);
-    expect(strategy.totalAssets).to.have.been.callCount(3);
-    expect(USDT.transfer).to.have.been.calledWith(ownerAddress, toEth("10"));
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("13.0");
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("10.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("2.0");
     expectEth(await contract.totalSupply()).to.equal("9.0");
     expectEth(await contract.balanceOf(ownerAddress)).to.equal("4.0");
   });
 
   it("Should withdraw tokens from strategy if not have enough to return to user", async function () {
-    const ownerAddress = ownerAddressses[1];
-    USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("2"));
-    strategy.totalAssets.returns(toEth("10"));
-    strategy.withdraw.returns(([amount]: Array<BigNumberish>) => {
-      console.log("strategy.withdraw", amount);
-      USDT.balanceOf
-        .whenCalledWith(contract.address)
-        .returns(toEth("2").add(amount));
+    const owner = owners[1];
+    const ownerAddress = await owner.getAddress();
 
-      strategy.totalAssets.returns(toEth("10").sub(amount));
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("5.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("2.0");
 
-      return BigNumber.from(0);
-    });
-    USDT.transfer.whenCalledWith(ownerAddress, toEth("6")).returns(true);
+    await USDT.burn(strategy.address, toEth("3"));
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("10.0");
 
     // shares at this moment must be 9 and total assets at 12
     expectEth(await contract.totalSupply()).to.equal("9.0");
@@ -179,97 +152,63 @@ describe("StakingVault", function () {
     // withdraw 4.5 shares = 4.5 shares * 12 Assets / 9 total shares = 6 assets
     await contract.connect(owners[1]).withdraw(toEth("4.5"), 0);
 
-    expect(USDT.balanceOf).to.have.been.calledWith(contract.address);
-    expect(USDT.balanceOf).to.have.been.callCount(7);
-    expect(strategy.totalAssets).to.have.been.callCount(3);
-    expect(strategy.withdraw).to.have.been.calledWith(toEth("4"));
-    expect(USDT.transfer).to.have.been.calledWith(ownerAddress, toEth("6"));
+    console.log("await contract.totalSupply()", await contract.totalSupply());
+
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("6.0");
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("11.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("0.0");
     expectEth(await contract.totalSupply()).to.equal("4.5");
     expectEth(await contract.balanceOf(ownerAddress)).to.equal("0.5");
   });
 
   it("Should try widthdraw tokens from strategy and revert with big loss", async function () {
-    const ownerAddress = ownerAddressses[0];
-    const loss = toEth("0.001");
-    USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("2"));
-    strategy.totalAssets.returns(toEth("10"));
+    const owner = owners[0];
+    const ownerAddress = await owner.getAddress();
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("10.0");
 
-    let withdrawCalledTimes = 0;
-    strategy.withdraw.returns(([amount]: Array<BigNumberish>) => {
-      console.log("strategy.withdraw", amount, "loss", loss);
-      withdrawCalledTimes++;
-      if (withdrawCalledTimes > 1) {
-        console.warn("Called second time");
-        return toEth("1");
-      }
+    await strategy.setLoss(toEth("0.001"));
 
-      USDT.balanceOf
-        .whenCalledWith(contract.address)
-        .returns(toEth("2").add(amount).sub(loss));
-
-      strategy.totalAssets.returns(toEth("10").sub(amount));
-
-      return loss;
-    });
-    USDT.transfer.whenCalledWith(ownerAddress, toEth("6")).returns(true);
+    await USDT.mint(contract.address, toEth("2"));
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("2.0");
+    await USDT.mint(strategy.address, toEth("4"));
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("10.0");
 
     // shares at this moment must be 4.5 and total assets at 12
     expectEth(await contract.totalSupply()).to.equal("4.5");
     expectEth(await contract.totalAssets()).to.equal("12.0");
 
     // withdraw 3 shares = 3 shares * 12 Assets / 4.5 total shares = 8 assets
-    await expect(contract.connect(owners[0]).withdraw(toEth("3"), 1)).reverted; // aceptable loss is 0.01% = 0.0008 assets
+    await expect(contract.connect(ownerAddress).withdraw(toEth("3"), 1))
+      .reverted; // aceptable loss is 0.01% = 0.0008 assets
 
-    expect(USDT.balanceOf).to.have.been.calledWith(contract.address);
-    expect(USDT.balanceOf).to.have.been.callCount(11);
-    expect(strategy.totalAssets).to.have.been.callCount(5);
-    expect(strategy.withdraw).to.have.been.calledWith(toEth("6"));
-    expect(USDT.transfer).to.not.have.been.called;
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("10.0");
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("10.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("2.0");
     expectEth(await contract.totalSupply()).to.equal("4.5");
     expectEth(await contract.balanceOf(ownerAddress)).to.equal("4.0");
   });
 
-  it("Should withdraw tokens from strategy with losts", async function () {
-    const ownerAddress = ownerAddressses[0];
-    const loss = toEth("0.0008");
-    USDT.balanceOf.whenCalledWith(contract.address).returns(toEth("2"));
-    strategy.totalAssets.returns(toEth("10"));
+  it("Should withdraw tokens from strategy with loss", async function () {
+    const owner = owners[0];
+    const ownerAddress = await owner.getAddress();
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("10.0");
 
-    let withdrawCalledTimes = 0;
-    strategy.withdraw.returns(([amount]: Array<BigNumberish>) => {
-      console.log("strategy.withdraw", amount, "loss", loss);
-      withdrawCalledTimes++;
-      if (withdrawCalledTimes > 1) {
-        console.warn("Called second time");
-        return toEth("0");
-      }
+    await strategy.setLoss(toEth("0.0008"));
 
-      USDT.balanceOf
-        .whenCalledWith(contract.address)
-        .returns(toEth("2").add(amount).sub(loss));
-
-      strategy.totalAssets.returns(toEth("10").sub(amount));
-
-      return loss;
-    });
-    USDT.transfer.whenCalledWith(ownerAddress, toEth("6")).returns(true);
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("2.0");
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("10.0");
 
     // shares at this moment must be 4.5 and total assets at 12
     expectEth(await contract.totalSupply()).to.equal("4.5");
     expectEth(await contract.totalAssets()).to.equal("12.0");
 
     // withdraw 3 shares = 3 shares * 12 Assets / 4.5 total shares = 8 assets
-    await contract.connect(owners[0]).withdraw(toEth("3"), 1); // aceptable loss is 0.01% = 0.0008 assets
+    await contract.connect(owner).withdraw(toEth("3"), 1); // aceptable loss is 0.01% = 0.0008 assets
 
-    expect(USDT.balanceOf).to.have.been.calledWith(contract.address);
-    expect(USDT.balanceOf).to.have.been.callCount(11);
-    expect(strategy.totalAssets).to.have.been.callCount(5);
-    expect(strategy.withdraw).to.have.been.calledWith(toEth("6"));
-    expect(USDT.transfer).to.have.been.calledWith(
-      ownerAddress,
-      toEth("8").sub(loss)
-    );
+    expectEth(await USDT.balanceOf(strategy.address)).to.equal("4.0");
+    expectEth(await USDT.balanceOf(ownerAddress)).to.equal("18.0");
+    expectEth(await USDT.balanceOf(contract.address)).to.equal("0.0");
     expectEth(await contract.totalSupply()).to.equal("1.5");
-    expectEth(await contract.balanceOf(ownerAddress)).to.equal("1");
+    expectEth(await contract.balanceOf(ownerAddress)).to.equal("1.0");
   });
 });
