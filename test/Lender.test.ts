@@ -6,6 +6,7 @@ import { ERC20DforceStrategy, Lender } from "../typechain";
 import { USDTABI, IUSDT } from "./ERC20";
 import { BigNumber, BigNumberish } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { resetFork } from "./utils";
 
 use(smock.matchers);
 
@@ -29,6 +30,9 @@ describe("Lender", () => {
   let contract: Lender;
 
   before(async () => {
+    // fails if not reset
+    await resetFork();
+
     owners = await ethers.getSigners();
     ownerAddressses = await Promise.all(
       owners.map(async (owner) => {

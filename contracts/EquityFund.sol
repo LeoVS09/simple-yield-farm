@@ -59,8 +59,6 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         return shares;
     }
 
-    event NeedWithdraw(uint256 maxShares, uint256 maxLoss);
-
     /// Withdraws the calling account's tokens from this Vault, redeeming
     ///  amount `maxShares` for an appropriate amount of tokens.
     ///  As holder address will be used message sender
@@ -75,7 +73,6 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         require(maxLoss <= MAX_BASIS_POINTS, "maxLoss is bigger 100%");
         require(maxShares <= balanceOf(msg.sender), "More shares specified, sender not have enough");
 
-        emit NeedWithdraw(maxShares, maxLoss);
         // Reddem shares for some amount of tokens
         (uint256 shares, uint256 amount) = _redeemShares(maxShares, maxLoss);
 
@@ -99,7 +96,6 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     /// Redeem up to `maxShares` for assets, and return `redeemd shares, assets ammount`.
     /// Allow `maxLoss`
     function _redeemShares(uint256 maxShares, uint256 maxLoss) internal virtual returns (uint256, uint256) {
-        require(false, "EquityFund._redeemShares");
         // Calculate how much tokens must be withdraw based on current assets of the fund
         uint256 value = _estimateShareValue(maxShares);
         // Burn shares (full value of what is being withdrawn)
@@ -127,10 +123,8 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         return shares;
     }
 
-    event EstimateShareValueInternal(uint256 shares, uint256 expectedAssets, uint256 totalShares, uint256 value);
-
     /// Estimate how much tokens must be withdraw based on current assets of the fund 
-    function _estimateShareValue(uint256 shares) internal virtual returns (uint256) {
+    function _estimateShareValue(uint256 shares) internal virtual view returns (uint256) {
         require(shares > 0, "For estimate value shares amount must be non-zero");
         
         uint256 totalShares = totalSupply();
@@ -142,7 +136,6 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
         // TODO: use rounding calculation
         uint256 expectedAssets = _expectedAssets();
         uint256 value = shares * expectedAssets / totalShares;
-        emit EstimateShareValueInternal(shares, expectedAssets, totalShares, value);
         require(shares > 0, "Incorrect calcualtion of share's value"); // rounding calcualtion must fix it
 
         return value;

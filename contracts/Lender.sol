@@ -21,6 +21,8 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
 
     /// Emit when strategy borrow some assets
     event Borrowed(address strategy, uint256 amount, uint256 strategyTotalAssets, uint256 totalDebt);
+    /// Emit when assets returned from strategy
+    event ReturnFromStrategy(uint256 previusBalance, uint256 targetBalance, uint256 requestedAmount, uint256 loss);
 
     function initialize(address strategyAddress, address storageTokenAddress) initializer public {
         __Ownable_init();
@@ -63,15 +65,14 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
         return _availableAssets();
     } 
 
-    event ReturnAssets(uint256 targetBalance, uint256 amountNeed, uint256 loss);
-
     /// Hook which must return assets to lender if it possible
     /// @param targetBalance - balance which fund must have at the end of hook executuin
     /// @return totalLoss - loss of all performed actions
     function _returnAssets(uint256 targetBalance) internal virtual returns (uint256) {
         // Calcualte amount of assets which should be widthdraw
         // TODO: use safe math
-        uint256 amountNeed = targetBalance - _availableAssets();
+        uint256 currentAssets = _availableAssets();
+        uint256 amountNeed = targetBalance - currentAssets;
 
         if (totalDebt < amountNeed) {
             totalDebt = 0;
@@ -80,7 +81,7 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
         }
 
         uint256 loss = strategy.withdraw(amountNeed);
-        emit ReturnAssets(targetBalance, amountNeed, loss);
+        emit ReturnFromStrategy(currentAssets, targetBalance, amountNeed, loss);
 
         return loss;
     }

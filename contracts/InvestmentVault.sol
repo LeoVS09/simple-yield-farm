@@ -5,10 +5,10 @@ import "./EquityFund.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Lender.sol";
 
-/// Simple staking vault, which allow store tokens in vault
+/// Simple investment vault, which allow store tokens in vault
 /// Tokens can be borrowed by strategy and returned with percents
 /// And vault allow widthdraw tokens in proportion of shares which user have
-contract StakingVault is Initializable, EquityFund, Lender {
+contract InvestmentVault is Initializable, EquityFund, Lender {
 
     uint256 constant DEGRADATION_COEFFICIENT = 10 ** 18;
     
@@ -26,11 +26,6 @@ contract StakingVault is Initializable, EquityFund, Lender {
         __Lender_init(strategyAddress);
     }
 
-    event EstimatedSharesValue(uint256 maxShares, uint256 maxLoss, uint256 value);
-    event AvailableAssetsForRedeem(uint256 value, uint256 availableAssets);
-    event EstimatedShares(uint256 value, uint256 totalLoss, uint256 shares, uint256 maxShares);
-    event Burned(uint256 shares, uint256 beforeTotal, uint256 afterTotal);
-
     /// Redeem up to `maxShares` for assets, and return `redeemd shares, assets ammount`.
     /// Allow `maxLoss`
     function _redeemShares(uint256 maxShares, uint256 maxLoss) internal override returns (uint256, uint256) {
@@ -38,12 +33,8 @@ contract StakingVault is Initializable, EquityFund, Lender {
 
         // Calculate how much tokens must be withdraw based on current assets of the fund
         uint256 value = _estimateShareValue(maxShares);
-        emit EstimatedSharesValue(maxShares, maxLoss, value);
         
-
-        uint256 availableAssets = _availableAssets();
-        emit AvailableAssetsForRedeem(value, availableAssets);
-        if (value > availableAssets) {
+        if (value > _availableAssets()) {
             // try return assets under control of the fund
             uint256 totalLoss = _returnAssets(value);
 
@@ -57,7 +48,6 @@ contract StakingVault is Initializable, EquityFund, Lender {
                 // including the losses that were incurred above during withdrawals
                 // TODO: use safe math
                 shares = _estimateShares(value + totalLoss);
-                emit EstimatedShares(value, totalLoss, shares, maxShares);
 
                 // Check current shares must be lower than maxShare.
                 // This implies that large withdrawals within certain parameter ranges might fail.
@@ -71,12 +61,8 @@ contract StakingVault is Initializable, EquityFund, Lender {
             require(totalLoss <= (value + totalLoss) * maxLoss / MAX_BASIS_POINTS, "Total loss bigger than acceptable maxLoss");
         }
 
-        uint256 before = totalSupply();
-
         // Burn shares (full value of what is being withdrawn)
         _burn(msg.sender, shares);
-
-        emit Burned(shares, before, totalSupply());
 
         return (shares, value);
     }

@@ -6,7 +6,7 @@ import { expect, use } from "chai";
 import { BigNumberish, BigNumber } from "ethers";
 import { ethers, upgrades } from "hardhat";
 // eslint-disable-next-line node/no-missing-import
-import { StakingVault, TestStrategy, USDT } from "../typechain";
+import { InvestmentVault, TestStrategy, USDT } from "../typechain";
 
 use(smock.matchers);
 
@@ -19,8 +19,8 @@ const { formatEther: fromEth, parseEther: toEth } = ethers.utils;
 
 const expectEth = (wei: BigNumberish) => expect(fromEth(wei));
 
-describe("StakingVault", function () {
-  let contract: StakingVault;
+describe("InvestmentVault", function () {
+  let contract: InvestmentVault;
   let owners: Array<SignerWithAddress>;
   let ownerAddressses: Array<string>;
   let USDT: USDT;
@@ -40,7 +40,9 @@ describe("StakingVault", function () {
     const strategyFactory = await ethers.getContractFactory("TestStrategy");
     strategy = await strategyFactory.deploy(USDT.address);
 
-    const StakingVaultFactory = await ethers.getContractFactory("StakingVault");
+    const StakingVaultFactory = await ethers.getContractFactory(
+      "InvestmentVault"
+    );
     const instance = await upgrades.deployProxy(
       StakingVaultFactory,
       ["StakingVault", "SVS", USDT.address, strategy.address],
@@ -52,7 +54,7 @@ describe("StakingVault", function () {
     contract = (await upgrades.upgradeProxy(
       instance.address,
       StakingVaultFactory
-    )) as StakingVault;
+    )) as InvestmentVault;
 
     strategy.setLender(contract.address);
 

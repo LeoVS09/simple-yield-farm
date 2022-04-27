@@ -10,6 +10,8 @@ import "solidity-coverage";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-tracer";
 
+import { etheriumFork } from "./forks";
+
 dotenv.config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -24,18 +26,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
-
-/** Binance Smart Chain Mainnet */
-const binanceSmartChainFork = {
-  url: "https://data-seed-prebsc-1-s1.binance.org:8545",
-  blockNumber: 16349556, // 24.3.2022
-};
-
-/** Etherium Mainnet */
-const etheriumFork = {
-  url: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  // blockNumber: 12964900, // Apr-07-2021
-};
 
 const config: HardhatUserConfig = {
   solidity: {
