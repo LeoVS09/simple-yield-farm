@@ -12,6 +12,9 @@ Developlet with extensability in mind and as simple as possible.
 * ERC20DforceStrategy - investing strategy which implement IBorrower interface. Can borrow money from ILender and return assets (with percents) to Lender when he requesed. Invest borrowed tokens to [dForce](https://dforce.network/) lending protocol.
 * InvestmentVault - merge EquityFund and Lender together. In simple words core earning farm contract. Allow deposit tokens, which can be borrowed by strategy. Allow withdraw tokens, if not have enough availble will return tokens from strategy.
 
+## Architecture
+
+![Architecture Overview](https://github.com/LeoVS09/simple-yield-farm/blob/main/assets/Yield_Farm_Architecture.png?raw=true)
 
 ## Development
 
