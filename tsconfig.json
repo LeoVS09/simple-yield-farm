@@ -7,6 +7,6 @@
     "outDir": "dist",
     "declaration": true
   },
-  "include": ["./scripts", "./test", "./test/ERC20", "./typechain"],
-  "files": ["./hardhat.config.ts"]
+  "include": ["./scripts", "./test", "./test/ERC20", "./typechain", "./deploy"],
+  "files": ["./hardhat.config.ts", "./forks.ts"]
 }

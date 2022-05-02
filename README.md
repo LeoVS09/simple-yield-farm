@@ -85,8 +85,4 @@ For start local server with contracts (for example for dApp development) need st
 npx hardhat node
 ```
 
-After that need deploy contracts by command
-
-```bash
-npx hardhat run --network localhost scripts/deploy.js
-```
+all scripts from `./deploy` folder will be executed during startup sequence
