@@ -13,7 +13,7 @@ import { parseEther } from "ethers/lib/utils";
 // const iUSDT_address = "0x1180c114f7fAdCB6957670432a3Cf8Ef08Ab5354";
 const USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
-// const NULL_ADDDRESS = "0x0000000000000000000000000000000000000000";
+const NULL_ADDDRESS = "0x0000000000000000000000000000000000000000";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, ethers } = hre;
@@ -26,12 +26,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const ERC20DforceStrategyDeploy = await deployments.get(
     "ERC20DforceStrategy"
   );
-  const ERC20DforceStrategy = await ethers.getContractAt(
-    "ERC20DforceStrategy",
-    ERC20DforceStrategyDeploy.address
-  );
+  // const ERC20DforceStrategy = await ethers.getContractAt(
+  //   "ERC20DforceStrategy",
+  //   ERC20DforceStrategyDeploy.address
+  // );
 
-  const InvestmentVaultResult = await deploy("InvestmentVault", {
+  await deploy("InvestmentVault", {
     from: deployer,
     // Lender unknown during deployment, will start with null address
     log: true,
@@ -51,8 +51,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
   });
 
-  await ERC20DforceStrategy.setLender(InvestmentVaultResult.address);
+  // await ERC20DforceStrategy.setLender(InvestmentVaultResult.address);
 };
 
 export default func;
-func.tags = ["ERC20DforceStrategy"];
+func.tags = ["InvestmentVault"];

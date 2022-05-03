@@ -1011,7 +1011,7 @@
     },
     "73b5463c827dfb80360855d716b7ad91c3a9dc4e74918ba698bc5ff39ee2eb99": {
       "address": "0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F",
-      "txHash": "0x347e5c188d72a75581fbb5cee47991f030246b28da3a68ce3ee024c6fb46d5bb",
+      "txHash": "0x715ecebbff7743b82723f6914f579094f480aa283ec8891340e25ad2ebbb90a4",
       "layout": {
         "storage": [
           {
@@ -1090,7 +1090,7 @@
             "label": "strategy",
             "offset": 0,
             "slot": "152",
-            "type": "t_contract(IBorrower)2656",
+            "type": "t_contract(IBorrower)3028",
             "contract": "Lender",
             "src": "contracts/Lender.sol:20"
           }
@@ -1112,7 +1112,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(IBorrower)2656": {
+          "t_contract(IBorrower)3028": {
             "label": "contract IBorrower",
             "numberOfBytes": "20"
           },
