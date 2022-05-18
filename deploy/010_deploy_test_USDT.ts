@@ -36,13 +36,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     });
     const signer = await ethers.getSigner(USDT_owner_address);
     const usdtContract = new ethers.Contract(USDT_address, UsdtAbi, signer);
-    await usdtContract.issue(ethers.utils.parseEther("10000"));
+    const amount = ethers.utils.parseUnits("1000", 6);
+    await usdtContract.issue(amount);
     console.log(
       "owner usdt balance",
       ethers.utils.formatEther(await usdtContract.balanceOf(USDT_owner_address))
     );
 
-    await usdtContract.transfer(deployer, ethers.utils.parseEther("10000"));
+    await usdtContract.transfer(deployer, amount);
     console.log(
       "deployer usdt balance",
       ethers.utils.formatEther(await usdtContract.balanceOf(deployer))

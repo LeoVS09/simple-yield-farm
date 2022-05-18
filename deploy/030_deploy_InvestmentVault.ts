@@ -26,12 +26,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const ERC20DforceStrategyDeploy = await deployments.get(
     "ERC20DforceStrategy"
   );
-  // const ERC20DforceStrategy = await ethers.getContractAt(
-  //   "ERC20DforceStrategy",
-  //   ERC20DforceStrategyDeploy.address
-  // );
+  const ERC20DforceStrategy = await ethers.getContractAt(
+    "ERC20DforceStrategy",
+    ERC20DforceStrategyDeploy.address
+  );
 
-  await deploy("InvestmentVault", {
+  const InvestmentVaultResult = await deploy("InvestmentVault", {
     from: deployer,
     // Lender unknown during deployment, will start with null address
     log: true,
@@ -51,7 +51,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
   });
 
-  // await ERC20DforceStrategy.setLender(InvestmentVaultResult.address);
+  await ERC20DforceStrategy.setLender(InvestmentVaultResult.address);
 };
 
 export default func;
