@@ -22,7 +22,7 @@ const isLocal = process.env.NODE_ENV === "local";
 console.log("isLocal", isLocal);
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, network } = hre;
+  const { deployments, getNamedAccounts, tenderly } = hre;
   const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();

@@ -673,14 +673,14 @@
     "@types/web3" "1.0.19"
 
 "@openzeppelin/contracts-upgradeable@^4.5.2":
-  version "4.5.2"
-  resolved "https://registry.npmjs.org/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.5.2.tgz"
-  integrity sha512-xgWZYaPlrEOQo3cBj97Ufiuv79SPd8Brh4GcFYhPgb6WvAq4ppz8dWKL6h+jLAK01rUqMRp/TS9AdXgAeNvCLA==
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.6.0.tgz#1bf55f230f008554d4c6fe25eb165b85112108b0"
+  integrity sha512-5OnVuO4HlkjSCJO165a4i2Pu1zQGzMs//o54LPrwUgxvEO2P3ax1QuaSI0cEHHTveA77guS0PnNugpR2JMsPfA==
 
 "@openzeppelin/contracts@^4.5.0":
-  version "4.5.0"
-  resolved "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-4.5.0.tgz"
-  integrity sha512-fdkzKPYMjrRiPK6K4y64e6GzULR7R7RwxSigHS8DDp7aWDeoReqsQI+cxHV1UuhAqX69L1lAaWDxenfP+xiqzA==
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.6.0.tgz#c91cf64bc27f573836dba4122758b4743418c1b3"
+  integrity sha512-8vi4d50NNya/bQqCmaVzvHNmwHvS0OBKb7HNtuNwEE3scXWrP31fKQoGxNMT+KbzmrNZzatE3QK5p2gFONI/hg==
 
 "@openzeppelin/hardhat-upgrades@^1.17.0":
   version "1.17.0"
@@ -828,6 +828,15 @@
   integrity sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==
   dependencies:
     defer-to-connect "^1.0.1"
+
+"@tenderly/hardhat-tenderly@^1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@tenderly/hardhat-tenderly/-/hardhat-tenderly-1.0.13.tgz#6182a2d32bf12d110622f0b24263dc964ed7aa6d"
+  integrity sha512-XsrF2QIUh8YmzCcWHmPnSNQjZNBQkyrHER8bcrWsFIgL7ub49hmPbpGVB2Isb6gUV/IGBpBm7R69jpmoTvJ17g==
+  dependencies:
+    axios "^0.21.1"
+    fs-extra "^9.0.1"
+    js-yaml "^3.14.0"
 
 "@truffle/error@^0.1.0":
   version "0.1.0"
@@ -3977,6 +3986,14 @@ eth-sig-util@3.0.0:
     tweetnacl "^1.0.0"
     tweetnacl-util "^0.15.0"
 
+eth-sig-util@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/eth-sig-util/-/eth-sig-util-1.4.2.tgz#8d958202c7edbaae839707fba6f09ff327606210"
+  integrity sha1-jZWCAsftuq6Dlwf7pvCf8ydgYhA=
+  dependencies:
+    ethereumjs-abi "git+https://github.com/ethereumjs/ethereumjs-abi.git"
+    ethereumjs-util "^5.1.1"
+
 eth-tx-summary@^3.1.2:
   version "3.2.4"
   resolved "https://registry.npmjs.org/eth-tx-summary/-/eth-tx-summary-3.2.4.tgz"
@@ -4064,6 +4081,13 @@ ethereumjs-abi@0.6.8, ethereumjs-abi@^0.6.8:
   version "0.6.8"
   resolved "https://registry.npmjs.org/ethereumjs-abi/-/ethereumjs-abi-0.6.8.tgz"
   integrity sha512-Tx0r/iXI6r+lRsdvkFDlut0N08jWMnKRZ6Gkq+Nmw75lZe4e6o3EkSnkaBP5NF6+m5PTGAr9JP43N3LyeoglsA==
+  dependencies:
+    bn.js "^4.11.8"
+    ethereumjs-util "^6.0.0"
+
+"ethereumjs-abi@git+https://github.com/ethereumjs/ethereumjs-abi.git":
+  version "0.6.8"
+  resolved "git+https://github.com/ethereumjs/ethereumjs-abi.git#ee3994657fa7a427238e6ba92a84d0b529bbcde0"
   dependencies:
     bn.js "^4.11.8"
     ethereumjs-util "^6.0.0"
@@ -4807,7 +4831,7 @@ fs-extra@^8.1.0:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
-fs-extra@^9.1.0:
+fs-extra@^9.0.1, fs-extra@^9.1.0:
   version "9.1.0"
   resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-9.1.0.tgz"
   integrity sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==
@@ -6112,7 +6136,7 @@ js-yaml@3.13.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-js-yaml@3.x, js-yaml@^3.12.0, js-yaml@^3.13.0, js-yaml@^3.13.1:
+js-yaml@3.x, js-yaml@^3.12.0, js-yaml@^3.13.0, js-yaml@^3.13.1, js-yaml@^3.14.0:
   version "3.14.1"
   resolved "https://registry.npmjs.org/js-yaml/-/js-yaml-3.14.1.tgz"
   integrity sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==

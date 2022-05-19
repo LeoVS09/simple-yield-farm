@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -8,9 +8,13 @@ import "./dependencies/dforce/ERC20iToken.sol";
 import "./IBorrower.sol";
 import "./BaseStrategy.sol";
 
+import "./library/SafeRatioMath.sol";
+
 contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, ReentrancyGuardUpgradeable {
     /// Contract which allow stake token
     ERC20iToken internal stake;
+
+    using SafeRatioMath for uint256;
 
     event Borrowed(uint256 amount);
     event PutInStake(uint256 amount);
@@ -104,7 +108,12 @@ contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, Reentran
 
     /// Return current balance of assets which put in stake
     function balanceOfAssetsInStake() public view returns (uint256) {
-        return stake.getCash();
+        return stake.exchangeRateStored().rmul(stake.balanceOf(address(this)));
+    }
+
+    /// Return current balance of assets which put in stake, as transaction, because can modify state
+    function directBalanceOfAssetsInStake() public returns (uint256) {
+        return stake.balanceOfUnderlying(address(this));
     }
 
     function _transferAssetsToLender(uint256 amount) internal {

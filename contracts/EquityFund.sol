@@ -29,11 +29,7 @@ contract EquityFund is Initializable, SimpleVault, ERC20Upgradeable, ERC20Burnab
     /// @param storageTokenAddress - address of ERC20 token contract which will be stored in fund
     /// @param name - name of the token
     /// @param symbol - token symbol
-    // function initialize(string memory name, string memory symbol, address storageTokenAddress) initializer public {
-    //     __EquityFund_init(name, symbol, storageTokenAddress);
-    // }
-
-    function __EquityFund_init(string memory name, string memory symbol, address storageTokenAddress) internal {
+    function __EquityFund_init(string memory name, string memory symbol, address storageTokenAddress) initializer public {
         __ERC20_init(name, symbol);
         __ERC20Burnable_init();
         __Ownable_init();

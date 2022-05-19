@@ -10,6 +10,7 @@ import "solidity-coverage";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-tracer";
 import "hardhat-deploy";
+import "@tenderly/hardhat-tenderly";
 
 import { etheriumFork } from "./forks";
 
@@ -65,6 +66,10 @@ const config: HardhatUserConfig = {
       // 4: '0xA296a3d5F026953e17F472B497eC29a5631FB51B', // but for rinkeby it will be a specific address
       // "goerli": '0x84b9514E013710b9dD0811c9Fe46b837a4A0d8E0', //it can also specify a specific netwotk name (specified in hardhat.config.js)
     },
+  },
+  tenderly: {
+    username: "LeoVS09",
+    project: "simple-yield-farm",
   },
 };
 

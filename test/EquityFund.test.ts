@@ -33,15 +33,20 @@ describe("EquityFund", function () {
     );
 
     const EquityFundFactory = await ethers.getContractFactory("EquityFund");
-    const instance = await upgrades.deployProxy(EquityFundFactory, [
-      "Equity Fund",
-      "EFS",
-      WETH.address,
-    ]);
+    const instance = await upgrades.deployProxy(
+      EquityFundFactory,
+      ["Equity Fund", "EFS", WETH.address],
+      { initializer: "__EquityFund_init" }
+    );
     contract = (await upgrades.upgradeProxy(
       instance.address,
       EquityFundFactory
     )) as EquityFund;
+
+    console.log(
+      "contract.balanceOf",
+      await contract.balanceOf(ownerAddressses[0])
+    );
 
     console.log("addresses\n", {
       owner: ownerAddressses[0],
