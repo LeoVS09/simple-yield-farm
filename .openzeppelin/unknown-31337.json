@@ -2,19 +2,19 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xddE78e6202518FF4936b5302cC2891ec180E8bFf",
-    "txHash": "0x68f062c4d45f6fb5c0e39fca04f6e66278e294272f17fd1bf3144a997f3a188a"
+    "txHash": "0x4af74625b30d1e09664f41e0c6fd374e4308be973801277c7db181016338adb0"
   },
   "proxies": [
     {
       "address": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
-      "txHash": "0x01c95b6962f16af21e6773bf53ae2271503a58fa289463f2b04a2392711166bb",
+      "txHash": "0x81dfac8e85e0a13a073ba68ccb73689136d7d2e1ae5b39fc0a32866637e61e73",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "c67680a31dd464c9b88a0e2239dce6f1eacc9860daf498f73e88c5df4c07fccb": {
+    "90484ddd0bf7ddb3a5417009ee088059508a6ac87e03a61495d36bee493d0702": {
       "address": "0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F",
-      "txHash": "0xcfd95f728da0c2661fc0506e78787f6a4e4af7a389b1d27dad5eaf8721b3df3b",
+      "txHash": "0xde7f2529a7f28769fd949e157754515e36c849bdd65d258fecc83a4eb5e39eb9",
       "layout": {
         "storage": [
           {
@@ -70,7 +70,7 @@
             "label": "_lender",
             "offset": 0,
             "slot": "102",
-            "type": "t_contract(ILender)2462",
+            "type": "t_contract(ILender)2473",
             "contract": "BaseStrategy",
             "src": "contracts/BaseStrategy.sol:14"
           },
@@ -102,7 +102,7 @@
             "label": "stake",
             "offset": 0,
             "slot": "154",
-            "type": "t_contract(ERC20iToken)2649",
+            "type": "t_contract(ERC20iToken)2672",
             "contract": "ERC20DforceStrategy",
             "src": "contracts/ERC20DforceStrategy.sol:15"
           }
@@ -124,7 +124,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(ERC20iToken)2649": {
+          "t_contract(ERC20iToken)2672": {
             "label": "contract ERC20iToken",
             "numberOfBytes": "20"
           },
@@ -132,7 +132,7 @@
             "label": "contract IERC20Upgradeable",
             "numberOfBytes": "20"
           },
-          "t_contract(ILender)2462": {
+          "t_contract(ILender)2473": {
             "label": "contract ILender",
             "numberOfBytes": "20"
           },

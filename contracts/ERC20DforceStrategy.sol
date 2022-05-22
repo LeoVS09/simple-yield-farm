@@ -132,4 +132,15 @@ contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, Reentran
         _transferAssets(address(_lender), amount);
     }
 
+    /**
+     * @dev Returns the current per-block supply interest rate.
+     *  Calculates the supply rate:
+     *  underlying = totalSupply × exchangeRate
+     *  borrowsPer = totalBorrows ÷ underlying
+     *  supplyRate = borrowRate × (1-reserveFactor) × borrowsPer
+     */
+    function supplyRatePerBlock() external view returns (uint256) {
+        return stake.supplyRatePerBlock();
+    }
+
 }

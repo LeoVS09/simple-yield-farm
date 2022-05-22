@@ -46,5 +46,17 @@ interface ERC20iToken is IERC20Upgradeable {
      */
     function exchangeRateStored() external view returns (uint256);
 
+    /**
+     * @dev Returns the current per-block borrow interest rate.
+     */
+    function borrowRatePerBlock() external view returns (uint256);
 
+    /**
+     * @dev Returns the current per-block supply interest rate.
+     *  Calculates the supply rate:
+     *  underlying = totalSupply × exchangeRate
+     *  borrowsPer = totalBorrows ÷ underlying
+     *  supplyRate = borrowRate × (1-reserveFactor) × borrowsPer
+     */
+    function supplyRatePerBlock() external view returns (uint256);
 }
