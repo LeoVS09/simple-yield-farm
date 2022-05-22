@@ -15,7 +15,7 @@ const USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const NULL_ADDDRESS = "0x0000000000000000000000000000000000000000";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre;
+  const { deployments, getNamedAccounts, tenderly } = hre;
   const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();
@@ -31,7 +31,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //   }
   // );
 
-  await deploy("ERC20DforceStrategy", {
+  const result = await deploy("ERC20DforceStrategy", {
     from: deployer,
     // Lender unknown during deployment, will start with null address
     log: true,
@@ -53,6 +53,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     //   "@openzeppelin/contracts": openzeppelin.address,
     //   "@openzeppelin/contracts-upgradeable": openzeppelinUpgradable.address,
     // },
+  });
+
+  await tenderly.persistArtifacts({
+    network: "hardhat",
+    name: "ERC20DforceStrategy",
+    address: result.address,
+  });
+
+  await tenderly.verify({
+    network: "hardhat",
+    name: "ERC20DforceStrategy",
+    address: result.address,
   });
 };
 

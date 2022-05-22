@@ -1,9 +1,11 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
+
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 // Implementation at https://etherscan.io/address/0x1a5de76ef2261fc6cb281f8a447bef4e48ef5d25#code
 /// Interface of DForce IToken wrapper for ERC20 tokens, like USDT
-interface ERC20iToken {
+interface ERC20iToken is IERC20Upgradeable {
     /**
      * @dev Caller deposits assets into the market and `_recipient` receives iToken in exchange.
      * @param _recipient The account that would receive the iToken.
@@ -44,5 +46,17 @@ interface ERC20iToken {
      */
     function exchangeRateStored() external view returns (uint256);
 
+    /**
+     * @dev Returns the current per-block borrow interest rate.
+     */
+    function borrowRatePerBlock() external view returns (uint256);
 
+    /**
+     * @dev Returns the current per-block supply interest rate.
+     *  Calculates the supply rate:
+     *  underlying = totalSupply × exchangeRate
+     *  borrowsPer = totalBorrows ÷ underlying
+     *  supplyRate = borrowRate × (1-reserveFactor) × borrowsPer
+     */
+    function supplyRatePerBlock() external view returns (uint256);
 }

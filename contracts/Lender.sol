@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -24,11 +24,11 @@ contract Lender is ILender, Initializable, SimpleVault, OwnableUpgradeable, Reen
     /// Emit when assets returned from strategy
     event ReturnFromStrategy(uint256 previusBalance, uint256 targetBalance, uint256 requestedAmount, uint256 loss);
 
-    function initialize(address strategyAddress, address storageTokenAddress) initializer public {
-        __Ownable_init();
-        __SimpleVault_init(storageTokenAddress);
-        __Lender_init(strategyAddress);
-    }
+    // function initialize(address strategyAddress, address storageTokenAddress) initializer public {
+    //     __Ownable_init();
+    //     __SimpleVault_init(storageTokenAddress);
+    //     __Lender_init(strategyAddress);
+    // }
 
     function __Lender_init(address strategyAddress) internal {
         setStrategy(strategyAddress);

@@ -1,5 +1,5 @@
 {
-  "address": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
+  "address": "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
   "abi": [
     {
       "anonymous": false,
@@ -128,9 +128,52 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "strategy",
+          "type": "address"
+        },
+        {
           "indexed": false,
           "internalType": "uint256",
           "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "strategyTotalAssets",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalDebt",
           "type": "uint256"
         }
       ],
@@ -149,11 +192,17 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "availableAssets",
+          "name": "shares",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "holder",
+          "type": "address"
         }
       ],
-      "name": "DuringWithdraw",
+      "name": "Deposit",
       "type": "event"
     },
     {
@@ -194,29 +243,54 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "amount",
+          "name": "previusBalance",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "balanceBeforeMint",
+          "name": "targetBalance",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "balanceAfterMint",
+          "name": "requestedAmount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "balanceOfUnderlying",
+          "name": "loss",
           "type": "uint256"
         }
       ],
-      "name": "PutInStake",
+      "name": "ReturnFromStrategy",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
       "type": "event"
     },
     {
@@ -224,17 +298,28 @@
       "inputs": [
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "holder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
-          "name": "amount",
+          "name": "maxShares",
           "type": "uint256"
-        }
-      ],
-      "name": "Redeemed",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "maxLoss",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "shares",
+          "type": "uint256"
+        },
         {
           "indexed": false,
           "internalType": "uint256",
@@ -244,72 +329,82 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "balanceBeforeRedeem",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "withdrawn",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "lost",
+          "name": "totalShares",
           "type": "uint256"
         }
       ],
-      "name": "Redeemed",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "ReturnToLender",
+      "name": "Withdraw",
       "type": "event"
     },
     {
       "inputs": [
         {
           "internalType": "string",
-          "name": "_name",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
           "type": "string"
         },
         {
           "internalType": "address",
-          "name": "wantAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "lenderAddress",
+          "name": "storageTokenAddress",
           "type": "address"
         }
       ],
-      "name": "__BaseStrategy__init",
+      "name": "__EquityFund_init",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "_lender",
-      "outputs": [
+      "inputs": [
         {
-          "internalType": "contract ILender",
-          "name": "",
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
           "type": "address"
         }
       ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -326,19 +421,72 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "balanceOfAssetsInStake",
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
       "outputs": [
         {
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "borrow",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "burn",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "amount",
           "type": "uint256"
-        },
+        }
+      ],
+      "name": "burnFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "creditAvailable",
+      "outputs": [
         {
           "internalType": "uint256",
           "name": "",
@@ -350,7 +498,50 @@
     },
     {
       "inputs": [],
-      "name": "directBalanceOfAssetsInStake",
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "subtractedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "decreaseAllowance",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
       "outputs": [
         {
           "internalType": "uint256",
@@ -364,42 +555,53 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "addedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "increaseAllowance",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
-          "name": "_name",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
           "type": "string"
         },
         {
           "internalType": "address",
-          "name": "wantTokenAddress",
+          "name": "storageTokenAddress",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "lenderAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "stakingAddress",
+          "name": "strategyAddress",
           "type": "address"
         }
       ],
       "name": "initialize",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "lender",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -439,23 +641,36 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "lender",
+          "name": "strategyAddress",
           "type": "address"
         }
       ],
-      "name": "setLender",
+      "name": "setStrategy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "supplyRatePerBlock",
+      "name": "strategy",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "contract IBorrower",
           "name": "",
-          "type": "uint256"
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -475,6 +690,85 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "totalDebt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -488,23 +782,15 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "want",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "amount",
+          "name": "maxShares",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxLoss",
           "type": "uint256"
         }
       ],
@@ -516,13 +802,6 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "work",
-      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -548,35 +827,35 @@
       "type": "constructor"
     }
   ],
-  "transactionHash": "0xc2de2b51557bf154d0f10f6872f999ca6ff22add0b5b3f99cc21006358ddf088",
+  "transactionHash": "0xca90846f7e1ad89aea53fc1723fea52bb9ede45f7661a5bed267243db9830285",
   "receipt": {
     "to": null,
     "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "contractAddress": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
+    "contractAddress": "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
     "transactionIndex": 0,
-    "gasUsed": "844704",
-    "logsBloom": "0x00000000000000000000000000000000420100000000000000800000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000002000001000000000000000000000000000000000000020000000000000100000800000000800000000000000000000000400200000010000000000000000000000000000000000080000000000000800000000000000000000000000000000400000000000000000000000000000000000020000020000000200000000000040000000000002400000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0xe3b1d1b563c91dcf44da1415b1cdfe223e5b61f1c07672bf9267c620ce985af0",
-    "transactionHash": "0xc2de2b51557bf154d0f10f6872f999ca6ff22add0b5b3f99cc21006358ddf088",
+    "gasUsed": "858646",
+    "logsBloom": "0x00000100000000000000000000000000400000000000000000800000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000002000001000000000000002000000000000000000000020000000000000100000800000000800000000000000000000000400000000000000000000000000000000000000000000080000000000000800000000000000000000000000000000400000000000004000000000000000000000000000020000000200000000000040000000000202400000000000000000020020000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x81af4e35fd5574850ad1f48c8173a20bb5a1d841fbfffa2fbfbaf7f8623b8cce",
+    "transactionHash": "0xca90846f7e1ad89aea53fc1723fea52bb9ede45f7661a5bed267243db9830285",
     "logs": [
       {
         "transactionIndex": 0,
-        "blockNumber": 14668852,
-        "transactionHash": "0xc2de2b51557bf154d0f10f6872f999ca6ff22add0b5b3f99cc21006358ddf088",
-        "address": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
+        "blockNumber": 14668856,
+        "transactionHash": "0xca90846f7e1ad89aea53fc1723fea52bb9ede45f7661a5bed267243db9830285",
+        "address": "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
         "topics": [
           "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b",
-          "0x000000000000000000000000dde78e6202518ff4936b5302cc2891ec180e8bff"
+          "0x000000000000000000000000ab7b4c595d3ce8c85e16da86630f2fc223b05057"
         ],
         "data": "0x",
         "logIndex": 0,
-        "blockHash": "0xe3b1d1b563c91dcf44da1415b1cdfe223e5b61f1c07672bf9267c620ce985af0"
+        "blockHash": "0x81af4e35fd5574850ad1f48c8173a20bb5a1d841fbfffa2fbfbaf7f8623b8cce"
       },
       {
         "transactionIndex": 0,
-        "blockNumber": 14668852,
-        "transactionHash": "0xc2de2b51557bf154d0f10f6872f999ca6ff22add0b5b3f99cc21006358ddf088",
-        "address": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
+        "blockNumber": 14668856,
+        "transactionHash": "0xca90846f7e1ad89aea53fc1723fea52bb9ede45f7661a5bed267243db9830285",
+        "address": "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
         "topics": [
           "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -584,42 +863,42 @@
         ],
         "data": "0x",
         "logIndex": 1,
-        "blockHash": "0xe3b1d1b563c91dcf44da1415b1cdfe223e5b61f1c07672bf9267c620ce985af0"
+        "blockHash": "0x81af4e35fd5574850ad1f48c8173a20bb5a1d841fbfffa2fbfbaf7f8623b8cce"
       },
       {
         "transactionIndex": 0,
-        "blockNumber": 14668852,
-        "transactionHash": "0xc2de2b51557bf154d0f10f6872f999ca6ff22add0b5b3f99cc21006358ddf088",
-        "address": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
+        "blockNumber": 14668856,
+        "transactionHash": "0xca90846f7e1ad89aea53fc1723fea52bb9ede45f7661a5bed267243db9830285",
+        "address": "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
         "topics": [
           "0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498"
         ],
         "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
         "logIndex": 2,
-        "blockHash": "0xe3b1d1b563c91dcf44da1415b1cdfe223e5b61f1c07672bf9267c620ce985af0"
+        "blockHash": "0x81af4e35fd5574850ad1f48c8173a20bb5a1d841fbfffa2fbfbaf7f8623b8cce"
       },
       {
         "transactionIndex": 0,
-        "blockNumber": 14668852,
-        "transactionHash": "0xc2de2b51557bf154d0f10f6872f999ca6ff22add0b5b3f99cc21006358ddf088",
-        "address": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
+        "blockNumber": 14668856,
+        "transactionHash": "0xca90846f7e1ad89aea53fc1723fea52bb9ede45f7661a5bed267243db9830285",
+        "address": "0xAD523115cd35a8d4E60B3C0953E0E0ac10418309",
         "topics": [
           "0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f"
         ],
         "data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d42ebdbba61412295d7b0302d6f50ac449ddb4f",
         "logIndex": 3,
-        "blockHash": "0xe3b1d1b563c91dcf44da1415b1cdfe223e5b61f1c07672bf9267c620ce985af0"
+        "blockHash": "0x81af4e35fd5574850ad1f48c8173a20bb5a1d841fbfffa2fbfbaf7f8623b8cce"
       }
     ],
-    "blockNumber": 14668852,
-    "cumulativeGasUsed": "844704",
+    "blockNumber": 14668856,
+    "cumulativeGasUsed": "858646",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0xddE78e6202518FF4936b5302cC2891ec180E8bFf",
+    "0xaB7B4c595d3cE8C85e16DA86630f2fc223B05057",
     "0x5D42EBdBBa61412295D7b0302d6F50aC449Ddb4F",
-    "0xf34822b40000000000000000000000000000000000000000000000000000000000000080000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec700000000000000000000000000000000000000000000000000000000000000000000000000000000000000001180c114f7fadcb6957670432a3cf8ef08ab53540000000000000000000000000000000000000000000000000000000000000014555344542064466f726365205374726174656779000000000000000000000000"
+    "0x8f15b414000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7000000000000000000000000b06c856c8eabd1d8321b687e188204c1018bc4e5000000000000000000000000000000000000000000000000000000000000001c5553445420496e766573746d656e74205661756c74205368617265730000000000000000000000000000000000000000000000000000000000000000000000076976735553445400000000000000000000000000000000000000000000000000"
   ],
   "numDeployments": 1,
   "solcInputHash": "0e89febeebc7444140de8e67c9067d2c",
@@ -629,13 +908,13 @@
   "execute": {
     "methodName": "initialize",
     "args": [
-      "USDT dForce Strategy",
+      "USDT Investment Vault Shares",
+      "ivsUSDT",
       "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-      "0x0000000000000000000000000000000000000000",
-      "0x1180c114f7fAdCB6957670432a3Cf8Ef08Ab5354"
+      "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5"
     ]
   },
-  "implementation": "0xddE78e6202518FF4936b5302cC2891ec180E8bFf",
+  "implementation": "0xaB7B4c595d3cE8C85e16DA86630f2fc223B05057",
   "devdoc": {
     "details": "This contract implements a proxy that is upgradeable by an admin. To avoid https://medium.com/nomic-labs-blog/malicious-backdoors-in-ethereum-proxies-62629adf3357[proxy selector clashing], which can potentially be used in an attack, this contract uses the https://blog.openzeppelin.com/the-transparent-proxy-pattern/[transparent proxy pattern]. This pattern implies two things that go hand in hand: 1. If any account other than the admin calls the proxy, the call will be forwarded to the implementation, even if that call matches one of the admin functions exposed by the proxy itself. 2. If the admin calls the proxy, it can access the admin functions, but its calls will never be forwarded to the implementation. If the admin tries to call a function on the implementation it will fail with an error that says \"admin cannot fallback to proxy target\". These properties mean that the admin account can only be used for admin actions like upgrading the proxy or changing the admin, so it's best if it's a dedicated account that is not used for anything else. This will avoid headaches due to sudden errors when trying to call a function from the proxy implementation. Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way, you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.",
     "kind": "dev",

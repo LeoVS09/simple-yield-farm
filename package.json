@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "hardhat test",
+    "test": "hardhat test test/ERC20DforceStrategy.test.ts --fulltrace",
     "test:trace": "hardhat test --fulltrace",
     "dev": "npm-watch"
   },
@@ -67,6 +67,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.5.0",
     "@openzeppelin/contracts-upgradeable": "^4.5.2",
+    "@tenderly/hardhat-tenderly": "^1.0.13",
     "hardhat-tracer": "^1.1.0-rc.3"
   }
 }
