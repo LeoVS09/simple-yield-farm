@@ -17,9 +17,10 @@ contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, Reentran
     using SafeRatioMath for uint256;
 
     event Borrowed(uint256 amount);
-    event PutInStake(uint256 amount);
+    event PutInStake(uint256 amount, uint256 balanceBeforeMint, uint256 balanceAfterMint, uint256 balanceOfUnderlying);
     event Redeemed(uint256 amount);
     event ReturnToLender(uint256 amount);
+    event Redeemed(uint256 amount, uint256 balanceBeforeRedeem, uint256 withdrawn, uint256 lost);
 
     /// name - name of the token
     /// wantTokenAddress - address of ERC20 token contract which will be stored in fund
@@ -64,16 +65,21 @@ contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, Reentran
     function _putInStake(uint256 amount) internal {
         _increaseAssetsAllowance(address(stake), amount);
 
+        uint256 balance = stake.balanceOf(address(this));
         stake.mint(address(this), amount);
 
-        emit PutInStake(amount);
+        emit PutInStake(amount, balance, stake.balanceOf(address(this)), stake.balanceOfUnderlying(address(this)));
     }
+
+    event DuringWithdraw(uint256 amount, uint256 availableAssets);
 
     /// Try to widthdraw given amount and return loss
     function withdraw(uint256 amount) external override onlyLender nonReentrant returns (uint256) {
         require(amount <= totalAssets(), "Not have enough money to withdraw");
 
-        if (amount >= _availableAssets()) {
+        emit DuringWithdraw(amount, _availableAssets());
+
+        if (amount <= _availableAssets()) {
             // We have enough free money to return to lender
             _transferAssetsToLender(amount);
             return 0;
@@ -97,18 +103,24 @@ contract ERC20DforceStrategy is Initializable, IBorrower, BaseStrategy, Reentran
         stake.redeemUnderlying(address(this), amount);
         uint256 withdrawn = _availableAssets() - balance;
 
-       // Calculate amount of lost assets during withdraw from stake
-        return amount - withdrawn;
+        // Calculate amount of lost assets during withdraw from stake
+        uint256 lost = amount - withdrawn;
+
+        emit Redeemed(amount, balance, withdrawn, lost);
+        return lost;
     }
 
     /// Estimated total assets which currently hold in strategy and in stake
     function totalAssets() public view override returns (uint256) {
-        return _availableAssets() + balanceOfAssetsInStake();
+        (uint256 balance,,) = balanceOfAssetsInStake();
+        return _availableAssets() + balance;
     }
 
     /// Return current balance of assets which put in stake
-    function balanceOfAssetsInStake() public view returns (uint256) {
-        return stake.exchangeRateStored().rmul(stake.balanceOf(address(this)));
+    function balanceOfAssetsInStake() public view returns (uint256, uint256, uint256) {
+        uint256 rate = stake.exchangeRateStored();
+        uint256 balance = stake.balanceOf(address(this));
+        return (rate.rmul(balance), rate, balance);
     }
 
     /// Return current balance of assets which put in stake, as transaction, because can modify state
