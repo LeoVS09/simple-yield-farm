@@ -37,6 +37,8 @@ Developlet with extensability in mind and as simple as possible.
 * `npm run dev` - Run tests in watch mode
 * `npx hardhat test --trace` - shows logs + calls
 * `npx hardhat test --fulltrace` - shows logs + calls + sloads + sstores
+* `npx hardhat --network <networkName> deploy` - deploy contracts to specific network
+* `npx hardhat --network <networkName> deploy --gasprice <number>` - deploy contracts to specific network with gas price
 
 #### Rest of commands
 
@@ -86,3 +88,25 @@ npx hardhat node
 ```
 
 all scripts from `./deploy` folder will be executed during startup sequence
+
+## Deployed contracts
+
+### BSC Testnet 
+
+* DefaultProxyAdmin - 0xF433883671f601E0f32c950BBc1693b3c2da5Da9 with 642683 gas
+* ERC20DforceStrategy_Implementation - 0x3c234573bF7b0Db6BAF8ffFcD4514735390CCFac with 2411498 gas
+* ERC20DforceStrategy_Proxy - 0x00Ce8B3Aac9eaa306e0bD971C28C2BE2F39E82a5 with 843892 gas
+* InvestmentVault_Implementation - 0x96D3bb4B131E74d896708258dEc0BbdC9152380d with 4047029 gas
+* InvestmentVault_Proxy - 0x1e2e51e23cc788bF7208B588BC644569965e835F with 856934 gas
+
+Summary deploy take around 0.2 BNB
+
+### BSC Mainnet
+
+* DefaultProxyAdmin - 0xC1B04fE805EF1482f39b42df4D221eb26d5B0204
+* ERC20DforceStrategy_Implementation - 0xf830c2A377405a63E07050bA701088D586ecB0De with 2411498 gas
+* ERC20DforceStrategy_Proxy - 0x0ACaDB88395FA1f34A45a8371E78A475dfd44A97 with 843892 gas
+* InvestmentVault_Implementation - 0xb5c9Aa92DB35859C73610b247209B13A92Fcfda4 with 4047029 gas
+* InvestmentVault_Proxy - 0x5AFE81F370D391De21093c6D72711B352B2fB5c2 with 856946 gas
+
+Summary deploy take around 0.05 BNB

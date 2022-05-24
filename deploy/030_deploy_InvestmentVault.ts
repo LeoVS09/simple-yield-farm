@@ -7,7 +7,8 @@ import { parseEther } from "ethers/lib/utils";
 
 // Binance Smart Chain
 // const iETH_address = "0xd57E1425837567F74A35d07669B23Bfb67aA4A93";
-// const iUSDT_address = '0x0BF8C72d618B5d46b055165e21d661400008fa0F'
+// const iUSDT_address = "0x0BF8C72d618B5d46b055165e21d661400008fa0F";
+// const USDT_address = "0x55d398326f99059fF775485246999027B3197955"; // BUSD-T actually
 // Etherium Mainnet
 // const iETH_address = "0x5ACD75f21659a59fFaB9AEBAf350351a8bfaAbc0";
 // const iUSDT_address = "0x1180c114f7fAdCB6957670432a3Cf8Ef08Ab5354";
@@ -43,7 +44,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         methodName: "initialize",
         args: [
           "USDT Investment Vault Shares",
-          "ivsUSDT",
+          "evsUSDT",
           USDT_address,
           ERC20DforceStrategyDeploy.address,
         ],
