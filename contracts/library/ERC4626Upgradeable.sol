@@ -82,17 +82,7 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
         // Check for rounding error since we round down in previewDeposit.
         require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
 
-        // cases when msg.sender != receiver is error prune
-        // but they allowed by standard... take care of it by self
-
-        // Need to transfer before minting or ERC777s could reenter.
-        asset.safeTransferFrom(msg.sender, address(this), assets);
-
-        _mint(receiver, shares, "", "");
-
-        emit Deposit(msg.sender, receiver, assets, shares);
-
-        afterDeposit(assets, shares);
+        _receiveAndDeposit(assets, shares, receiver);
     }
 
     /// Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
@@ -105,6 +95,12 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
     function mint(uint256 shares, address receiver) public virtual nonReentrant returns (uint256 assets) {
         assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
 
+        _receiveAndDeposit(assets, shares, receiver);
+    }
+
+    /// Base deposit logic which common for public deposit and mint function
+    /// Trasfer assets from sender and mint shares for receiver
+    function _receiveAndDeposit(uint256 assets, uint256 shares, address receiver) private {
         // cases when msg.sender != receiver is error prune
         // but they allowed by standard... take care of it by self
 
@@ -137,20 +133,7 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
         // No need to check for rounding error, previewWithdraw rounds up.
         shares = previewWithdraw(assets); 
 
-        // cases when msg.sender != receiver != owner is error prune
-        // but they allowed by standard... take care of it by self
-
-        if (msg.sender != owner) {
-            _spendAllowance(owner, msg.sender, shares);
-        }
-
-        beforeWithdraw(assets, shares);
-
-        _burn(owner, shares, "", "");
-
-        emit Withdraw(msg.sender, receiver, owner, assets, shares);
-
-        asset.safeTransfer(receiver, assets);
+        _withdrawAndSend(assets, shares, owner, receiver);
     }
 
     /// Burns exactly shares from owner and sends assets of underlying tokens to receiver.
@@ -169,15 +152,20 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
         address receiver,
         address owner
     ) public virtual nonReentrant returns (uint256 assets) {
+        assets = previewRedeem(shares);
+        // Check for rounding error since we round down in previewRedeem.
+        require(assets != 0, "ZERO_ASSETS");
+        
+        _withdrawAndSend(assets, shares, receiver, owner);
+    }
+
+    /// Burn owner shares and send tokens to receiver.
+    function _withdrawAndSend(uint256 assets, uint256 shares, address receiver, address owner) private {
         // cases when msg.sender != receiver != owner is error prune
         // but they allowed by standard... take care of it by self
-
         if (msg.sender != owner) {
             _spendAllowance(owner, msg.sender, shares);
         }
-
-        // Check for rounding error since we round down in previewRedeem.
-        require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
 
         beforeWithdraw(assets, shares);
 
