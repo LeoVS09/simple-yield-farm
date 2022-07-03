@@ -71,16 +71,18 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
 
     /* ///////////////////////////// DEPOSIT / WITHDRAWAL ///////////////////////////// */
 
-    /// Mints shares Vault shares to receiver by depositing exactly amount of underlying tokens.
+    /// Mints Vault shares to receiver by depositing exactly amount of underlying tokens.
     /// - emits the Deposit event.
     /// - support ERC-20 approve / transferFrom on asset as a deposit flow. 
     ///   MAY support an additional flow in which the underlying tokens are owned by the Vault contract 
     ///   before the deposit execution, and are accounted for during deposit.
-    /// - revert if all of assets cannot be deposited (due to deposit limit being reached, slippage, the user not approving enough underlying tokens to the Vault contract, etc).
+    /// - revert if all of assets cannot be deposited (due to deposit limit being reached, slippage, 
+    ///   the user not approving enough underlying tokens to the Vault contract, etc).
     /// Note that most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
     function deposit(uint256 assets, address receiver) public virtual nonReentrant returns (uint256 shares) {
+        shares = previewDeposit(assets);
         // Check for rounding error since we round down in previewDeposit.
-        require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
+        require(shares != 0, "ZERO_SHARES");
 
         _receiveAndDeposit(assets, shares, receiver);
     }
@@ -211,8 +213,11 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
     /// meaning the depositor will lose assets by minting.
     function previewMint(uint256 shares) public view virtual returns (uint256) {
         uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
+        if(supply == 0) {
+            return shares;
+        }
 
-        return supply == 0 ? shares : shares.mulDivUp(totalAssets(), supply);
+        return shares.mulDivUp(totalAssets(), supply);
     }
 
     /// Allows an on-chain or off-chain user to simulate the effects of their withdrawal 
@@ -232,8 +237,10 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
     /// meaning the depositor will lose assets by depositing.
     function previewWithdraw(uint256 assets) public view virtual returns (uint256) {
         uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
-
-        return supply == 0 ? assets : assets.mulDivUp(supply, totalAssets());
+        if(supply == 0) {
+            return assets;
+        }
+        return assets.mulDivUp(supply, totalAssets());
     }
 
     /// Allows an on-chain or off-chain user to simulate the effects of their 
@@ -267,8 +274,11 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
     /// meaning what the average user should expect to see when exchanging to and from.
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
         uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
+        if (supply == 0){
+            return assets;
+        }
 
-        return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+        return assets.mulDivDown(supply, totalAssets());
     }
 
     /// The amount of assets that the Vault would exchange for the amount of shares provided, in an ideal scenario where all the conditions are met.
@@ -282,8 +292,11 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
     /// meaning what the average user should expect to see when exchanging to and from.
     function convertToAssets(uint256 shares) public view virtual returns (uint256) {
         uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
+        if (supply == 0){
+            return shares;
+        }
 
-        return supply == 0 ? shares : shares.mulDivDown(totalAssets(), supply);
+        return shares.mulDivDown(totalAssets(), supply);
     }
 
     /// Total amount of the underlying asset that is “managed” by Vault.
