@@ -1,9 +1,9 @@
 {
-  "name": "stacking-delegator",
+  "name": "simple-yield-farm",
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "hardhat test test/ERC20DforceStrategy.test.ts --fulltrace",
+    "test": "hardhat test test/ERC4626.test.ts --fulltrace",
     "test:trace": "hardhat test --fulltrace",
     "dev": "npm-watch"
   },

@@ -39,8 +39,9 @@ abstract contract SafeERC4626Upgradeable is ERC4626Upgradeable {
     /// - revert if all of assets cannot be deposited (due to deposit limit being reached, slippage, the user not approving enough underlying tokens to the Vault contract, etc).
     /// Note that most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
     function deposit(uint256 assets) public virtual nonReentrant returns (uint256 shares) {
+        shares = previewDeposit(assets);
         // Check for rounding error since we round down in previewDeposit.
-        require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
+        require(shares != 0, "Given assets result in 0 shares.");
 
         _receiveAndDeposit(assets, shares);
     }
@@ -53,7 +54,8 @@ abstract contract SafeERC4626Upgradeable is ERC4626Upgradeable {
     /// - revert if all of assets cannot be deposited (due to deposit limit being reached, slippage, the user not approving enough underlying tokens to the Vault contract, etc).
     /// Note that most implementations will require pre-approval of the Vault with the Vault’s underlying asset token.
     function mint(uint256 shares) public virtual nonReentrant returns (uint256 assets) {
-        assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
+        // No need to check for rounding error, previewMint rounds up.
+        assets = previewMint(shares); 
 
         _receiveAndDeposit(assets, shares);
     }
@@ -101,7 +103,7 @@ abstract contract SafeERC4626Upgradeable is ERC4626Upgradeable {
     function redeem(uint256 shares) public virtual nonReentrant returns (uint256 assets) {
         assets = previewRedeem(shares);
         // Check for rounding error since we round down in previewRedeem.
-        require(assets != 0, "ZERO_ASSETS");
+        require(assets != 0, "Given shares result in 0 assets.");
         
         _withdrawAndSend(assets, shares);
     }
