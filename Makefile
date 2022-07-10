@@ -1,8 +1,8 @@
 
-default:; make clean && make all
+default:; make clean && make build
 
 # Build contracts
-all    :; dapp build
+build    :; dapp build
 
 # Remove build artifacts
 clean  :; dapp clean
