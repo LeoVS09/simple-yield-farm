@@ -1,4 +1,4 @@
-@openzeppelin/=lib/openzeppelin-contracts/
-@openzeppelin/=lib/openzeppelin-contracts-upgradeable/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/
+@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/
 ds-test/=lib/ds-test/src/
 @chainlink/=lib/chainlink-brownie-contracts/
