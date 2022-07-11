@@ -1,5 +1,5 @@
 import {DSTest} from "ds-test/test.sol";
-import {Dapptutorial} from "./Dapptutorial.sol";
+import {Dapptutorial} from "../Dapptutorial.sol";
 
 contract DapptutorialTest is DSTest {
     Dapptutorial dapptutorial;
