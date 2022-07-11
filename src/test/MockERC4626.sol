@@ -3,21 +3,19 @@ pragma solidity ^0.8.4;
 
 import "../library/ERC4626Upgradeable.sol";
 
-/// implementation of ERC4626
-contract TestERC4626 is ERC4626Upgradeable {
+/// Testing implementation of ERC4626
+contract MockERC4626 is ERC4626Upgradeable {
 
     uint256 public beforeWithdrawHookCalledCounter;
     uint256 public afterDepositHookCalledCounter;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() initializer {}
-
-    function initialize(
+    constructor(
         IERC20Upgradeable _asset,
         string memory name_,
         string memory symbol_,
         address[] memory defaultOperators_
-    ) initializer public {
+    ) initializer {
         __ERC4626_init(_asset, name_, symbol_, defaultOperators_);
 
         beforeWithdrawHookCalledCounter = 0;
