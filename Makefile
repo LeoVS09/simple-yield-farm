@@ -41,3 +41,6 @@ debug:
 # Deploy contracts
 deploy:
 	forge create DappStarter
+
+remap:
+	forge remappings > remappings.txt
