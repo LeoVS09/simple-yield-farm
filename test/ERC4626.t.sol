@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.10;
 
+import "forge-std/Test.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-
-import {DSTestPlus} from "./DSTestPlus.sol";
 
 import {MockERC20} from "./MockERC20.sol";
 import {MockERC4626} from "./MockERC4626.sol";
 
-contract ERC4626Test is DSTestPlus {
+contract ERC4626Test is Test {
     MockERC20 underlying;
     MockERC4626 vault;
 
@@ -43,13 +42,13 @@ contract ERC4626Test is DSTestPlus {
 
         underlying.mint(alice, aliceUnderlyingAmount);
 
-        hevm.prank(alice); // https://ethereum.stackexchange.com/questions/118808/while-writing-a-test-using-dapptools-how-do-i-send-a-transaction-as-a-specific
+        vm.prank(alice); 
         underlying.approve(address(vault), aliceUnderlyingAmount);
         assertEq(underlying.allowance(alice, address(vault)), aliceUnderlyingAmount);
 
         uint256 alicePreDepositBal = underlying.balanceOf(alice);
 
-        hevm.prank(alice);
+        vm.prank(alice);
         uint256 aliceShareAmount = vault.deposit(aliceUnderlyingAmount, alice);
 
         assertEq(vault.afterDepositHookCalledCounter(), 1);
@@ -64,7 +63,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount);
         assertEq(underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount);
 
-        hevm.prank(alice);
+        vm.prank(alice);
         vault.withdraw(aliceUnderlyingAmount, alice, alice);
 
         assertEq(vault.beforeWithdrawHookCalledCounter(), 1);
@@ -84,13 +83,13 @@ contract ERC4626Test is DSTestPlus {
 
         underlying.mint(alice, aliceShareAmount);
 
-        hevm.prank(alice);
+        vm.prank(alice);
         underlying.approve(address(vault), aliceShareAmount);
         assertEq(underlying.allowance(alice, address(vault)), aliceShareAmount);
 
         uint256 alicePreDepositBal = underlying.balanceOf(alice);
 
-        hevm.prank(alice);
+        vm.prank(alice);
         uint256 aliceUnderlyingAmount = vault.mint(aliceShareAmount, alice);
 
         assertEq(vault.afterDepositHookCalledCounter(), 1);
@@ -105,7 +104,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount);
         assertEq(underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount);
 
-        hevm.prank(alice);
+        vm.prank(alice);
         vault.redeem(aliceShareAmount, alice, alice);
 
         assertEq(vault.beforeWithdrawHookCalledCounter(), 1);
@@ -177,20 +176,20 @@ contract ERC4626Test is DSTestPlus {
 
         underlying.mint(alice, 4000);
 
-        hevm.prank(alice);
+        vm.prank(alice);
         underlying.approve(address(vault), 4000);
 
         assertEq(underlying.allowance(alice, address(vault)), 4000);
 
         underlying.mint(bob, 7001);
 
-        hevm.prank(bob);
+        vm.prank(bob);
         underlying.approve(address(vault), 7001);
 
         assertEq(underlying.allowance(bob, address(vault)), 7001);
 
         // 1. Alice mints 2000 shares (costs 2000 tokens)
-        hevm.prank(alice);
+        vm.prank(alice);
         uint256 aliceUnderlyingAmount = vault.mint(2000, alice);
 
         uint256 aliceShareAmount = vault.previewDeposit(aliceUnderlyingAmount);
@@ -210,7 +209,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(vault.totalAssets(), aliceUnderlyingAmount);
 
         // 2. Bob deposits 4000 tokens (mints 4000 shares)
-        hevm.prank(bob);
+        vm.prank(bob);
         uint256 bobShareAmount = vault.deposit(4000, bob);
         uint256 bobUnderlyingAmount = vault.previewWithdraw(bobShareAmount);
         assertEq(vault.afterDepositHookCalledCounter(), 2);
@@ -250,7 +249,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(vault.convertToAssets(vault.balanceOf(bob)), bobUnderlyingAmount + (mutationUnderlyingAmount / 3) * 2);
 
         // 4. Alice deposits 2000 tokens (mints 1333 shares)
-        hevm.prank(alice);
+        vm.prank(alice);
         vault.deposit(2000, alice);
 
         assertEq(vault.totalSupply(), 7333);
@@ -262,7 +261,7 @@ contract ERC4626Test is DSTestPlus {
         // 5. Bob mints 2000 shares (costs 3001 assets)
         // NOTE: Bob's assets spent got rounded up
         // NOTE: Alices's vault assets got rounded up
-        hevm.prank(bob);
+        vm.prank(bob);
         vault.mint(2000, bob);
 
         assertEq(vault.totalSupply(), 9333);
@@ -286,7 +285,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(vault.convertToAssets(vault.balanceOf(bob)), 10929);
 
         // 7. Alice redeem 1333 shares (2428 assets)
-        hevm.prank(alice);
+        vm.prank(alice);
         vault.redeem(1333, alice, alice);
 
         assertEq(underlying.balanceOf(alice), 2428);
@@ -298,7 +297,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(vault.convertToAssets(vault.balanceOf(bob)), 10929);
 
         // 8. Bob withdraws 2929 assets (1608 shares)
-        hevm.prank(bob);
+        vm.prank(bob);
         vault.withdraw(2929, bob, bob);
 
         assertEq(underlying.balanceOf(bob), 2929);
@@ -311,7 +310,7 @@ contract ERC4626Test is DSTestPlus {
 
         // 9. Alice withdraws 3643 assets (2000 shares)
         // NOTE: Bob's assets have been rounded back up
-        hevm.prank(alice);
+        vm.prank(alice);
         vault.withdraw(3643, alice, alice);
 
         assertEq(underlying.balanceOf(alice), 6071);
@@ -323,7 +322,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(vault.convertToAssets(vault.balanceOf(bob)), 8001);
 
         // 10. Bob redeem 4392 shares (8001 tokens)
-        hevm.prank(bob);
+        vm.prank(bob);
         vault.redeem(4392, bob, bob);
         assertEq(underlying.balanceOf(bob), 10930);
         assertEq(vault.totalSupply(), 0);
@@ -412,14 +411,14 @@ contract ERC4626Test is DSTestPlus {
         underlying.mint(alice, 1e18);
         underlying.mint(bob, 1e18);
 
-        hevm.prank(alice);
+        vm.prank(alice);
         underlying.approve(address(vault), 1e18);
 
-        hevm.prank(bob);
+        vm.prank(bob);
         underlying.approve(address(vault), 1e18);
 
         // alice deposits 1e18 for bob
-        hevm.prank(alice);
+        vm.prank(alice);
         vault.deposit(1e18, bob);
 
         assertEq(vault.balanceOf(alice), 0);
@@ -427,14 +426,14 @@ contract ERC4626Test is DSTestPlus {
         assertEq(underlying.balanceOf(alice), 0);
 
         // bob mint 1e18 for alice
-        hevm.prank(bob);
+        vm.prank(bob);
         vault.mint(1e18, alice);
         assertEq(vault.balanceOf(alice), 1e18);
         assertEq(vault.balanceOf(bob), 1e18);
         assertEq(underlying.balanceOf(bob), 0);
 
         // alice redeem 1e18 for bob
-        hevm.prank(alice);
+        vm.prank(alice);
         vault.redeem(1e18, bob, alice);
 
         assertEq(vault.balanceOf(alice), 0);
@@ -442,7 +441,7 @@ contract ERC4626Test is DSTestPlus {
         assertEq(underlying.balanceOf(bob), 1e18);
 
         // bob withdraw 1e18 for alice
-        hevm.prank(bob);
+        vm.prank(bob);
         vault.withdraw(1e18, alice, bob);
 
         assertEq(vault.balanceOf(alice), 0);

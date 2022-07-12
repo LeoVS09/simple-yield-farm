@@ -1,7 +1,7 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../library/ERC4626Upgradeable.sol";
+import "../src/library/ERC4626Upgradeable.sol";
 
 /// Testing implementation of ERC4626
 contract MockERC4626 is ERC4626Upgradeable {
