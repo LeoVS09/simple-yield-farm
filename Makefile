@@ -3,6 +3,13 @@
 .PHONY: build clean test
 
 
+# Apply .env if it exists (you can use "source .env" from console)
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
+
 default:
 	make clean && make build
 

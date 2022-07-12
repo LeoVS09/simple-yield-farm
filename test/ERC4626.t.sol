@@ -341,7 +341,7 @@ contract ERC4626Test is Test {
         underlying.approve(address(vault), 0.5e18);
         assertEq(underlying.allowance(address(this), address(vault)), 0.5e18);
 
-        vault.deposit(1e18, address(this));
+        vault.deposit(1 ether, address(this));
     }
 
     function testFailWithdrawWithNotEnoughUnderlyingAmount() public {
@@ -350,7 +350,7 @@ contract ERC4626Test is Test {
 
         vault.deposit(0.5e18, address(this));
 
-        vault.withdraw(1e18, address(this), address(this));
+        vault.withdraw(1 ether, address(this), address(this));
     }
 
     function testFailRedeemWithNotEnoughShareAmount() public {
@@ -359,23 +359,23 @@ contract ERC4626Test is Test {
 
         vault.deposit(0.5e18, address(this));
 
-        vault.redeem(1e18, address(this), address(this));
+        vault.redeem(1 ether, address(this), address(this));
     }
 
     function testFailWithdrawWithNoUnderlyingAmount() public {
-        vault.withdraw(1e18, address(this), address(this));
+        vault.withdraw(1 ether, address(this), address(this));
     }
 
     function testFailRedeemWithNoShareAmount() public {
-        vault.redeem(1e18, address(this), address(this));
+        vault.redeem(1 ether, address(this), address(this));
     }
 
     function testFailDepositWithNoApproval() public {
-        vault.deposit(1e18, address(this));
+        vault.deposit(1 ether, address(this));
     }
 
     function testFailMintWithNoApproval() public {
-        vault.mint(1e18, address(this));
+        vault.mint(1 ether, address(this));
     }
 
     function testFailDepositZero() public {
@@ -383,69 +383,72 @@ contract ERC4626Test is Test {
     }
 
     function testMintZero() public {
-        vault.mint(0, address(this));
+        address alice = address(0xABCD);
+        vault.mint(0, alice);
 
-        assertEq(vault.balanceOf(address(this)), 0);
-        assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 0);
+        assertEq(vault.balanceOf(alice), 0);
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), 0);
         assertEq(vault.totalSupply(), 0);
         assertEq(vault.totalAssets(), 0);
     }
 
     function testFailRedeemZero() public {
-        vault.redeem(0, address(this), address(this));
+        address alice = address(0xABCD);
+        vault.redeem(0, alice, alice);
     }
 
     function testWithdrawZero() public {
-        vault.withdraw(0, address(this), address(this));
+        address alice = address(0xABCD);
+        vault.withdraw(0, alice, alice);
 
-        assertEq(vault.balanceOf(address(this)), 0);
-        assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 0);
+        assertEq(vault.balanceOf(alice), 0);
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), 0);
         assertEq(vault.totalSupply(), 0);
         assertEq(vault.totalAssets(), 0);
     }
 
     function testVaultInteractionsForSomeoneElse() public {
-        // init 2 users with a 1e18 balance
+        // init 2 users with a 1 ether balance
         address alice = address(0xABCD);
         address bob = address(0xDCBA);
-        underlying.mint(alice, 1e18);
-        underlying.mint(bob, 1e18);
+        underlying.mint(alice, 1 ether);
+        underlying.mint(bob, 1 ether);
 
         vm.prank(alice);
-        underlying.approve(address(vault), 1e18);
+        underlying.approve(address(vault), 1 ether);
 
         vm.prank(bob);
-        underlying.approve(address(vault), 1e18);
+        underlying.approve(address(vault), 1 ether);
 
-        // alice deposits 1e18 for bob
+        // alice deposits 1 ether for bob
         vm.prank(alice);
-        vault.deposit(1e18, bob);
+        vault.deposit(1 ether, bob);
 
         assertEq(vault.balanceOf(alice), 0);
-        assertEq(vault.balanceOf(bob), 1e18);
+        assertEq(vault.balanceOf(bob), 1 ether);
         assertEq(underlying.balanceOf(alice), 0);
 
-        // bob mint 1e18 for alice
+        // bob mint 1 ether for alice
         vm.prank(bob);
-        vault.mint(1e18, alice);
-        assertEq(vault.balanceOf(alice), 1e18);
-        assertEq(vault.balanceOf(bob), 1e18);
+        vault.mint(1 ether, alice);
+        assertEq(vault.balanceOf(alice), 1 ether);
+        assertEq(vault.balanceOf(bob), 1 ether);
         assertEq(underlying.balanceOf(bob), 0);
 
-        // alice redeem 1e18 for bob
+        // alice redeem 1 ether for bob
         vm.prank(alice);
-        vault.redeem(1e18, bob, alice);
+        vault.redeem(1 ether, bob, alice);
 
         assertEq(vault.balanceOf(alice), 0);
-        assertEq(vault.balanceOf(bob), 1e18);
-        assertEq(underlying.balanceOf(bob), 1e18);
+        assertEq(vault.balanceOf(bob), 1 ether);
+        assertEq(underlying.balanceOf(bob), 1 ether);
 
-        // bob withdraw 1e18 for alice
+        // bob withdraw 1 ether for alice
         vm.prank(bob);
-        vault.withdraw(1e18, alice, bob);
+        vault.withdraw(1 ether, alice, bob);
 
         assertEq(vault.balanceOf(alice), 0);
         assertEq(vault.balanceOf(bob), 0);
-        assertEq(underlying.balanceOf(alice), 1e18);
+        assertEq(underlying.balanceOf(alice), 1 ether);
     }
 }
