@@ -136,7 +136,7 @@ abstract contract ERC4626Upgradeable is ERC777Upgradeable, ReentrancyGuardUpgrad
         // No need to check for rounding error, previewWithdraw rounds up.
         shares = previewWithdraw(assets); 
 
-        _withdrawAndSend(assets, shares, owner, receiver);
+        _withdrawAndSend(assets, shares, receiver, owner);
     }
 
     /// Burns exactly shares from owner and sends assets of underlying tokens to receiver.
