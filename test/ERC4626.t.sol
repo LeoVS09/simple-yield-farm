@@ -62,12 +62,15 @@ contract ERC4626Test is Test {
         assertEq(vault.beforeWithdrawHookCalledCounter(), 0);
         // Expect exchange rate to be 1:1 on initial deposit.
         assertEq(depositAmount, aliceShareAmount);
-        assertEq(vault.previewWithdraw(aliceShareAmount), depositAmount);
+        assertEq(vault.previewWithdraw(depositAmount), aliceShareAmount);
+        assertEq(vault.previewRedeem(aliceShareAmount), depositAmount);
         assertEq(vault.previewDeposit(depositAmount), aliceShareAmount);
+        assertEq(vault.previewMint(aliceShareAmount), depositAmount);
         assertEq(vault.totalSupply(), aliceShareAmount);
         assertEq(vault.totalAssets(), depositAmount);
         assertEq(vault.balanceOf(alice), aliceShareAmount);
         assertEq(vault.convertToAssets(vault.balanceOf(alice)), depositAmount);
+        assertEq(vault.convertToShares(depositAmount), vault.balanceOf(alice));
         assertEq(underlying.balanceOf(alice), alicePreDepositBal - depositAmount);
         assertEq(underlying.balanceOf(address(vault)), depositAmount);
 
@@ -85,45 +88,59 @@ contract ERC4626Test is Test {
         assertEq(underlying.balanceOf(address(vault)), 0);
     }
 
-    function testSingleMintRedeem(uint128 amount) public {
-        vm.assume(amount > 0);
+    function testSingleMintRedeem(uint96 _shareAmount, uint96 _depositAlowance, uint128 _keepInBalance) public {
+        vm.assume(_shareAmount > 0);
+        vm.assume(_depositAlowance >= _shareAmount);
 
-        uint256 aliceShareAmount = amount;
+        // prevent overflow
+        uint256 shareAmount = _shareAmount;
+        uint256 keepInBalance = _keepInBalance;
+        uint256 depositAlowance = _depositAlowance;
 
         address alice = address(0xABCD);
 
-        underlying.mint(alice, aliceShareAmount);
+        underlying.mint(alice, shareAmount + keepInBalance);
 
         vm.prank(alice);
-        underlying.approve(address(vault), aliceShareAmount);
-        assertEq(underlying.allowance(alice, address(vault)), aliceShareAmount);
+        underlying.approve(address(vault), depositAlowance);
+        assertEq(underlying.allowance(alice, address(vault)), depositAlowance);
 
         uint256 alicePreDepositBal = underlying.balanceOf(alice);
+        uint256 expectedUnderlying = vault.previewMint(shareAmount);
+        assertEq(vault.convertToAssets(shareAmount), expectedUnderlying);
 
         vm.prank(alice);
-        uint256 aliceUnderlyingAmount = vault.mint(aliceShareAmount, alice);
+        uint256 aliceUnderlyingAmount = vault.mint(shareAmount, alice);
+
+        assertEq(aliceUnderlyingAmount, expectedUnderlying);
+        assertEq(vault.afterDepositHookCalledCounter(), 1);
+        assertEq(vault.beforeWithdrawHookCalledCounter(), 0);
+        // Expect exchange rate to be 1:1 on initial mint.
+        assertEq(shareAmount, aliceUnderlyingAmount);
+        assertEq(vault.previewWithdraw(aliceUnderlyingAmount), shareAmount);
+        assertEq(vault.previewRedeem(shareAmount), aliceUnderlyingAmount);
+        assertEq(vault.previewDeposit(aliceUnderlyingAmount), shareAmount);
+        assertEq(vault.previewMint(shareAmount), aliceUnderlyingAmount);
+        assertEq(vault.totalSupply(), shareAmount);
+        assertEq(vault.totalAssets(), aliceUnderlyingAmount);
+        assertEq(vault.balanceOf(alice), shareAmount);
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount);
+        assertEq(vault.convertToShares(aliceUnderlyingAmount), vault.balanceOf(alice));
+        assertEq(underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount);
+        assertEq(underlying.balanceOf(address(vault)), aliceUnderlyingAmount);
+
+        vm.prank(alice);
+        vault.redeem(shareAmount, alice, alice);
 
         assertEq(vault.afterDepositHookCalledCounter(), 1);
-
-        // Expect exchange rate to be 1:1 on initial mint.
-        assertEq(aliceShareAmount, aliceUnderlyingAmount);
-        assertEq(vault.previewWithdraw(aliceShareAmount), aliceUnderlyingAmount);
-        assertEq(vault.previewDeposit(aliceUnderlyingAmount), aliceShareAmount);
-        assertEq(vault.totalSupply(), aliceShareAmount);
-        assertEq(vault.totalAssets(), aliceUnderlyingAmount);
-        assertEq(vault.balanceOf(alice), aliceUnderlyingAmount);
-        assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount);
-        assertEq(underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount);
-
-        vm.prank(alice);
-        vault.redeem(aliceShareAmount, alice, alice);
-
         assertEq(vault.beforeWithdrawHookCalledCounter(), 1);
 
         assertEq(vault.totalAssets(), 0);
+        assertEq(vault.totalSupply(), 0);
         assertEq(vault.balanceOf(alice), 0);
         assertEq(vault.convertToAssets(vault.balanceOf(alice)), 0);
         assertEq(underlying.balanceOf(alice), alicePreDepositBal);
+        assertEq(underlying.balanceOf(address(vault)), 0);
     }
 
     function testMultipleMintDepositRedeemWithdraw() public {

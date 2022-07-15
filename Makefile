@@ -35,11 +35,11 @@ test-silent:
 
 # Run more fuzz tests
 test-fuzz:
-	forge test -v --fuzz-runs 1000
+	forge test -v --fuzz-runs 10000
 
 # Rerun tests when files changed
 dev:
-	forge test --watch
+	forge test --watch -vvv
 
 # Debug contract interactivly
 debug:
