@@ -13,6 +13,7 @@ contract ERC4626Test is Test {
 
     address alice;
     address bob;
+    address carl;
 
     function setUp() public {
         underlying = new MockERC20("Mock Token", "TKN");
@@ -20,8 +21,9 @@ contract ERC4626Test is Test {
         address[] memory defaultOperators;
         vault = new MockERC4626(IERC20Upgradeable(address(underlying)), "Mock Token Vault", "vwTKN", defaultOperators);
 
-        alice = address(0xABCD);
-        bob = address(0xDCBA);
+        alice = address(0xAAAA);
+        bob = address(0xBBBB);
+        carl = address(0xCCCC);
     }
 
     function invariantMetadata() public {
@@ -633,4 +635,158 @@ contract ERC4626Test is Test {
         assertEq(underlying.balanceOf(alice), aliceAmount);
         assertEq(underlying.balanceOf(bob), bobAmount);
     }
+
+    function testVaultInteractionsThroughApprove(uint96 aliceAmount, uint96 bobAmount) public {
+        vm.assume(aliceAmount > 0);
+        vm.assume(bobAmount > 0);
+
+        // init 2 users with a 1 ether balance
+        underlying.mint(alice, aliceAmount);
+        underlying.mint(bob, bobAmount);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), aliceAmount);
+
+        vm.prank(bob);
+        underlying.approve(address(vault), bobAmount);
+
+        // alice deposits 1 ether
+        vm.prank(alice);
+        vault.deposit(aliceAmount, alice);
+
+        assertEq(vault.balanceOf(alice), aliceAmount);
+        assertEq(vault.balanceOf(bob), 0);
+        assertEq(vault.balanceOf(carl), 0);
+        assertEq(underlying.balanceOf(alice), 0);
+        assertEq(underlying.balanceOf(bob), bobAmount);
+        assertEq(underlying.balanceOf(carl), 0);
+
+        // bob mint 1 ether
+        vm.prank(bob);
+        vault.mint(bobAmount, bob);
+        assertEq(vault.balanceOf(alice), aliceAmount);
+        assertEq(vault.balanceOf(bob), bobAmount);
+        assertEq(vault.balanceOf(carl), 0);
+        assertEq(underlying.balanceOf(alice), 0);
+        assertEq(underlying.balanceOf(bob), 0);
+        assertEq(underlying.balanceOf(carl), 0);
+
+        // bob allow carl spend 1 ether
+        vm.prank(bob);
+        vault.approve(carl, bobAmount);
+
+        assertEq(vault.allowance(bob, carl), bobAmount);
+
+        // carl redeem 1 ether from bob to alice
+        vm.prank(carl);
+        vault.redeem(bobAmount, alice, bob);
+
+        assertEq(vault.balanceOf(alice), aliceAmount);
+        assertEq(vault.balanceOf(bob), 0);
+        assertEq(vault.balanceOf(carl), 0);
+        assertEq(underlying.balanceOf(alice), bobAmount);
+        assertEq(underlying.balanceOf(bob), 0);
+        assertEq(underlying.balanceOf(carl), 0);
+
+        // alice allow bob spend 1 ether
+        vm.prank(alice);
+        vault.approve(bob, aliceAmount);
+
+        assertEq(vault.allowance(alice, bob), aliceAmount);
+
+        // bob withdraw 1 ether for carl from alice
+        vm.prank(bob);
+        vault.withdraw(aliceAmount, carl, alice);
+
+        assertEq(vault.balanceOf(alice), 0);
+        assertEq(vault.balanceOf(bob), 0);
+        assertEq(vault.balanceOf(carl), 0);
+        assertEq(underlying.balanceOf(alice), bobAmount);
+        assertEq(underlying.balanceOf(bob), 0);
+        assertEq(underlying.balanceOf(carl), aliceAmount);
+    }
+
+    function testFailVaultWithdrawWithoutApprove(uint96 aliceAmount, uint96 bobAmount) public {
+        vm.assume(aliceAmount > 0);
+        vm.assume(bobAmount > 0);
+
+        // init 2 users with a 1 ether balance
+        underlying.mint(alice, aliceAmount);
+        underlying.mint(bob, bobAmount);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), aliceAmount);
+
+        vm.prank(bob);
+        underlying.approve(address(vault), bobAmount);
+
+        // alice deposits 1 ether
+        vm.prank(alice);
+        vault.deposit(aliceAmount, alice);
+
+        // bob mint 1 ether
+        vm.prank(bob);
+        vault.mint(bobAmount, bob);
+
+        // bob allow carl spend 1 ether
+        vm.prank(bob);
+        vault.approve(carl, bobAmount);
+
+        assertEq(vault.allowance(bob, carl), bobAmount);
+
+        // alice allow bob spend 1 ether
+        vm.prank(alice);
+        vault.approve(bob, aliceAmount);
+
+        assertEq(vault.allowance(alice, bob), aliceAmount);
+        assertEq(vault.allowance(alice, carl), 0);
+        assertEq(vault.allowance(bob, carl), 0);
+
+        // bob withdraw 1 ether for carl from alice
+        vm.prank(carl);
+        vault.withdraw(aliceAmount, bob, alice);
+    }
+
+    function testFailVaultReddemWithoutApprove(uint96 aliceAmount, uint96 bobAmount) public {
+        vm.assume(aliceAmount > 0);
+        vm.assume(bobAmount > 0);
+
+        // init 2 users with a 1 ether balance
+        underlying.mint(alice, aliceAmount);
+        underlying.mint(bob, bobAmount);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), aliceAmount);
+
+        vm.prank(bob);
+        underlying.approve(address(vault), bobAmount);
+
+        // alice deposits 1 ether
+        vm.prank(alice);
+        vault.deposit(aliceAmount, alice);
+
+        // bob mint 1 ether
+        vm.prank(bob);
+        vault.mint(bobAmount, bob);
+
+        // bob allow carl spend 1 ether
+        vm.prank(bob);
+        vault.approve(carl, bobAmount);
+
+        assertEq(vault.allowance(bob, carl), bobAmount);
+
+        // alice allow bob spend 1 ether
+        vm.prank(alice);
+        vault.approve(bob, aliceAmount);
+
+        assertEq(vault.allowance(alice, bob), aliceAmount);
+        assertEq(vault.allowance(alice, carl), 0);
+        assertEq(vault.allowance(bob, carl), 0);
+
+        // bob withdraw 1 ether for carl from alice
+        vm.prank(carl);
+        vault.redeem(aliceAmount, bob, alice);
+    }
+
+    
 }
