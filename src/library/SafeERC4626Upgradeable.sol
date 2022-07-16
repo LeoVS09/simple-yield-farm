@@ -125,11 +125,13 @@ abstract contract SafeERC4626Upgradeable is ERC4626Upgradeable {
 
     /* //////////////////// Backwards compatible methods ////////////////////////// */
 
-    function deposit(uint256 assets, address receiver) public virtual override nonReentrant returns (uint256 shares) {
+    function deposit(uint256 assets, address receiver) public virtual override returns (uint256 shares) {
+        // nonReentrant under the hood
         return deposit(assets);
     }
 
-    function mint(uint256 shares, address receiver) public virtual override nonReentrant returns (uint256 assets) {
+    function mint(uint256 shares, address receiver) public virtual override returns (uint256 assets) {
+        // nonReentrant under the hood
         return mint(shares);
     }
 
@@ -137,7 +139,8 @@ abstract contract SafeERC4626Upgradeable is ERC4626Upgradeable {
         uint256 assets,
         address receiver,
         address owner
-    ) public virtual override nonReentrant returns (uint256 shares) {
+    ) public virtual override returns (uint256 shares) {
+        // nonReentrant under the hood
         return withdraw(assets);
     }
 
@@ -145,7 +148,8 @@ abstract contract SafeERC4626Upgradeable is ERC4626Upgradeable {
         uint256 shares,
         address receiver,
         address owner
-    ) public virtual override nonReentrant returns (uint256 assets) {
+    ) public virtual override returns (uint256 assets) {
+        // nonReentrant under the hood
         return redeem(shares);
     }
 }
