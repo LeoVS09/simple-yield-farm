@@ -480,53 +480,93 @@ contract ERC4626Test is Test {
         assertEq(underlying.balanceOf(address(vault)), 0);
     }
 
-    function testFailDepositWithNotEnoughApproval() public {
-        underlying.mint(address(this), 0.5 ether);
-        underlying.approve(address(vault), 0.5 ether);
-        assertEq(underlying.allowance(address(this), address(vault)), 0.5 ether);
+    function testFailDepositWithNotEnoughApproval(uint128 balance, uint128 deposit) public {
+        vm.assume(balance > 0);
+        vm.assume(deposit > balance);
 
-        vault.deposit(1 ether, address(this));
+        underlying.mint(alice, balance);
+        
+        vm.prank(alice);
+        underlying.approve(address(vault), balance);
+        assertEq(underlying.allowance(alice, address(vault)), balance);
+
+        vm.prank(alice);
+        vault.deposit(deposit, alice);
     }
 
-    function testFailWithdrawWithNotEnoughUnderlyingAmount() public {
-        underlying.mint(address(this), 0.5 ether);
-        underlying.approve(address(vault), 0.5 ether);
+    function testFailMintWithNotEnoughApproval(uint128 balance, uint128 deposit) public {
+        vm.assume(balance > 0);
+        vm.assume(deposit > balance);
 
-        vault.deposit(0.5 ether, address(this));
+        underlying.mint(alice, balance);
+        
+        vm.prank(alice);
+        underlying.approve(address(vault), balance);
+        assertEq(underlying.allowance(alice, address(vault)), balance);
 
-        vault.withdraw(1 ether, address(this), address(this));
+        vm.prank(alice);
+        vault.mint(deposit, alice);
     }
 
-    function testFailRedeemWithNotEnoughShareAmount() public {
-        underlying.mint(address(this), 0.5 ether);
-        underlying.approve(address(vault), 0.5 ether);
+    function testFailWithdrawWithNotEnoughUnderlyingAmount(uint128 balance, uint128 withdraw) public {
+        vm.assume(balance > 0);
+        vm.assume(withdraw > balance);
 
-        vault.deposit(0.5 ether, address(this));
+        underlying.mint(alice, balance);
+        
+        vm.prank(alice);
+        underlying.approve(address(vault), balance);
 
-        vault.redeem(1 ether, address(this), address(this));
+        vm.prank(alice);
+        vault.deposit(balance, alice);
+
+        vm.prank(alice);
+        vault.withdraw(withdraw, alice, alice);
     }
 
-    function testFailWithdrawWithNoUnderlyingAmount() public {
-        vault.withdraw(1 ether, address(this), address(this));
+    function testFailRedeemWithNotEnoughShareAmount(uint128 balance, uint128 redeem) public {
+        vm.assume(balance > 0);
+        vm.assume(redeem > balance);
+
+        underlying.mint(alice, balance);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), balance);
+
+        vm.prank(alice);
+        vault.deposit(balance, alice);
+
+        vm.prank(alice);
+        vault.redeem(redeem, alice, alice);
     }
 
-    function testFailRedeemWithNoShareAmount() public {
-        vault.redeem(1 ether, address(this), address(this));
+    function testFailWithdrawWithNoUnderlyingAmount(uint128 withdraw) public {
+        vm.assume(withdraw > 0);
+
+        vm.prank(alice);
+        vault.withdraw(withdraw, alice, alice);
     }
 
-    function testFailDepositWithNoApproval() public {
-        vault.deposit(1 ether, address(this));
+    function testFailRedeemWithNoShareAmount(uint128 redeem) public {
+        // included zero reddem fail
+        vm.prank(alice);
+        vault.redeem(redeem, alice, alice);
     }
 
-    function testFailMintWithNoApproval() public {
-        vault.mint(1 ether, address(this));
+    function testFailDepositWithNoApproval(uint128 deposit) public {
+        // included zero deposit fail
+        vm.prank(alice);
+        vault.deposit(deposit, alice);
     }
 
-    function testFailDepositZero() public {
-        vault.deposit(0, address(this));
+    function testFailMintWithNoApproval(uint128 mint) public {
+        vm.assume(mint > 0);
+
+        vm.prank(alice);
+        vault.mint(mint, alice);
     }
 
-    function testMintZero() public {
+    function testMintZeroAllowed() public {
         vault.mint(0, alice);
 
         assertEq(vault.balanceOf(alice), 0);
@@ -535,11 +575,7 @@ contract ERC4626Test is Test {
         assertEq(vault.totalAssets(), 0);
     }
 
-    function testFailRedeemZero() public {
-        vault.redeem(0, alice, alice);
-    }
-
-    function testWithdrawZero() public {
+    function testWithdrawZeroAllowed() public {
         vault.withdraw(0, alice, alice);
 
         assertEq(vault.balanceOf(alice), 0);
