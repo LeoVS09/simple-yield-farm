@@ -584,46 +584,53 @@ contract ERC4626Test is Test {
         assertEq(vault.totalAssets(), 0);
     }
 
-    function testVaultInteractionsForSomeoneElse() public {
+    function testVaultInteractionsForSomeoneElse(uint96 aliceAmount, uint96 bobAmount) public {
+        vm.assume(aliceAmount > 0);
+        vm.assume(bobAmount > 0);
+
         // init 2 users with a 1 ether balance
-        underlying.mint(alice, 1 ether);
-        underlying.mint(bob, 1 ether);
+        underlying.mint(alice, aliceAmount);
+        underlying.mint(bob, bobAmount);
 
         vm.prank(alice);
-        underlying.approve(address(vault), 1 ether);
+        underlying.approve(address(vault), aliceAmount);
 
         vm.prank(bob);
-        underlying.approve(address(vault), 1 ether);
+        underlying.approve(address(vault), bobAmount);
 
         // alice deposits 1 ether for bob
         vm.prank(alice);
-        vault.deposit(1 ether, bob);
+        vault.deposit(aliceAmount, bob);
 
         assertEq(vault.balanceOf(alice), 0);
-        assertEq(vault.balanceOf(bob), 1 ether);
+        assertEq(vault.balanceOf(bob), aliceAmount);
         assertEq(underlying.balanceOf(alice), 0);
+        assertEq(underlying.balanceOf(bob), bobAmount);
 
         // bob mint 1 ether for alice
         vm.prank(bob);
-        vault.mint(1 ether, alice);
-        assertEq(vault.balanceOf(alice), 1 ether);
-        assertEq(vault.balanceOf(bob), 1 ether);
+        vault.mint(bobAmount, alice);
+        assertEq(vault.balanceOf(alice), bobAmount);
+        assertEq(vault.balanceOf(bob), aliceAmount);
+        assertEq(underlying.balanceOf(alice), 0);
         assertEq(underlying.balanceOf(bob), 0);
 
         // alice redeem 1 ether for bob
         vm.prank(alice);
-        vault.redeem(1 ether, bob, alice);
+        vault.redeem(bobAmount, bob, alice);
 
         assertEq(vault.balanceOf(alice), 0);
-        assertEq(vault.balanceOf(bob), 1 ether);
-        assertEq(underlying.balanceOf(bob), 1 ether);
+        assertEq(vault.balanceOf(bob), aliceAmount);
+        assertEq(underlying.balanceOf(alice), 0);
+        assertEq(underlying.balanceOf(bob), bobAmount);
 
         // bob withdraw 1 ether for alice
         vm.prank(bob);
-        vault.withdraw(1 ether, alice, bob);
+        vault.withdraw(aliceAmount, alice, bob);
 
         assertEq(vault.balanceOf(alice), 0);
         assertEq(vault.balanceOf(bob), 0);
-        assertEq(underlying.balanceOf(alice), 1 ether);
+        assertEq(underlying.balanceOf(alice), aliceAmount);
+        assertEq(underlying.balanceOf(bob), bobAmount);
     }
 }
