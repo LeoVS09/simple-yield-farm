@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Jul 15 22:40:05 2022
+# Make data base, printed on Sun Jul 17 16:41:23 2022
 
 # Variables
 
@@ -47,7 +47,7 @@ SNAP_DATA = /var/snap/code/101
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
-JOURNAL_STREAM = 8:56294
+JOURNAL_STREAM = 8:75821
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # environment
@@ -77,7 +77,7 @@ INFOPATH = /home/linuxbrew/.linuxbrew/share/info:
 # makefile (from '.env', line 1)
 ETHERSCAN_API_KEY = K2J2VU4QDXNHRZVJZYFV7DPDPMVHY1115Q
 # environment
-MANAGERPID = 3133
+MANAGERPID = 3129
 # environment
 LC_NAME = ru_RU.UTF-8
 # environment
@@ -91,7 +91,7 @@ PATH = /usr/local/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-SESSION_MANAGER = local/dark:@/tmp/.ICE-unix/3474,unix/dark:/tmp/.ICE-unix/3474
+SESSION_MANAGER = local/dark:@/tmp/.ICE-unix/3462,unix/dark:/tmp/.ICE-unix/3462
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -107,7 +107,7 @@ DISABLE_WAYLAND = 1
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = e27c173958e4496ca6878a9685887174
+INVOCATION_ID = dec1f149d99f4173a589a2c9bad1ad5a
 # environment
 GDK_PIXBUF_MODULEDIR = /snap/code/101/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
 # default
@@ -117,7 +117,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 95360
+GIO_LAUNCHED_DESKTOP_FILE_PID = 9813
 # automatic
 %F = $(notdir $%)
 # environment
@@ -131,7 +131,7 @@ PWD = /home/leovs09/work/simple-yield-farm
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 3440
+SSH_AGENT_PID = 3427
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -277,10 +277,7 @@ LC_ADDRESS = ru_RU.UTF-8
 # environment
 LANG = C
 # environment
- 
-make: *** No rule to make target 'all'.  Stop.
-
-VSCODE_PID = 95412
+VSCODE_PID = 9875
 # variable set hash-table stats:
 # Load=134/1024=13%, Rehash=0, Collisions=23/161=14%
 
@@ -289,6 +286,9 @@ VSCODE_PID = 95412
 # No pattern-specific variable values.
 
 # Directories
+
+ 
+make: *** No rule to make target 'all'.  Stop.
 
 # . (device 2050, inode 25371634): 23 files, no impossibilities.
 
@@ -322,7 +322,7 @@ test-silent:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-07-13 00:40:05.85099533
+#  Last modified 2022-07-16 01:00:22.606773168
 #  File has been updated.
 #  Successfully updated.
 
@@ -346,7 +346,7 @@ test-fuzz:
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 38):
-	forge test -v --fuzz-runs 1000
+	forge test -v --fuzz-runs 10000
 
 build:
 #  Phony target (prerequisite of .PHONY).
@@ -375,7 +375,7 @@ dev:
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 42):
-	forge test --watch
+	forge test --watch -vvv
 
 # Not a target:
 .DEFAULT:
@@ -426,6 +426,6 @@ install:
 # strcache performance: lookups = 61 / hit rate = 36%
 # hash-table stats:
 # Load=39/8192=0%, Rehash=0, Collisions=1/61=2%
-# Finished Make data base on Fri Jul 15 22:40:05 2022
+# Finished Make data base on Sun Jul 17 16:41:24 2022
 
  
